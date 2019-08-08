@@ -6,7 +6,7 @@ import QuickAdd from "../QuickAdd/QuickAdd";
 import uuid from "uuid/v4";
 
 const ListPane = styled.div``;
-const ListHeader = styled.header``;
+// const ListHeader = styled.header``;
 
 export default class List extends Component {
   state = {
@@ -34,14 +34,15 @@ export default class List extends Component {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
 
-  _handleAddTodo = ({ text }) => {
+  _handleAddTodo = ({ text, notes }) => {
     const id = uuid()
       .split("-")
       .join("");
     const newTodo = {
       id,
       text,
-      author: "jmpark6846"
+      notes,
+      author: "jmpark6846",
     };
     this.setState({ todos: { ...this.state.todos, [id]: newTodo } });
   };

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Box, Input } from "../common";
 
 let compositionend = true;
 export default class QuickAdd extends Component {
@@ -9,43 +10,49 @@ export default class QuickAdd extends Component {
   };
 
   state = {
-    text: ""
+    text: "",
+    notes: ""
   };
+  noteRef = React.createRef()
 
   _handleKeyDown = e => {
     if (e.key === "Enter") {
-      if (!compositionend) {
-        return
+      if (!compositionend || this.state.text === "") {
+        return;
       }
-      this.props.onSubmit({ text: this.state.text });
-      this.setState({ text: "" });
+      this.props.onSubmit({ text: this.state.text, notes: this.state.notes });
+      this.setState({ text: "", notes:"" });
     } else if (e.key === "Escape") {
       this.props.onCancel();
     }
   };
   handleComposition = event => {
-    compositionend = event.type === "compositionend"
+    compositionend = event.type === "compositionend";
   };
+  
   render() {
     return (
-      <div>
-        <input
+      <Box>
+        <Input
           value={this.state.text}
           placeholder="할 일"
           onCompositionStart={this.handleComposition}
           onCompositionUpdate={this.handleComposition}
           onCompositionEnd={this.handleComposition}
-          onKeyDown={evt => {
-            // console.log("onkeydown");
-            this._handleKeyDown(evt);
-          }}
+          onKeyDown={this._handleKeyDown}
           onChange={evt => {
-            // console.log("called");
             this.setState({ text: evt.target.value });
           }}
         />
-        
-      </div>
+        <div
+          dangerouslySetInnerHTML = {{__html: this.state.notes}}
+          placeholder="노트(선택)"
+          onChange={evt => {
+            this.setState({ notes: evt.target.value });
+          }}
+          contentEditable
+        />
+      </Box>
     );
   }
 }

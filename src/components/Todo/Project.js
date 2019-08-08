@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import styled from "styled-components";
 import List from './List';
 import { Button } from '../common';
 
@@ -22,7 +21,7 @@ export default class Project extends Component {
         <div>
           <Button>새 리스트 추가</Button>
         </div>
-        
+
         <List />
       </div>
     )

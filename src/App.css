@@ -3,3 +3,11 @@
   display: flex;
   flex-direction: column;
 }
+
+[contenteditable=true]:empty:before {
+  content: attr(placeholder);
+  display: block;
+  color: #aaa;
+  cursor: text;
+}
+
