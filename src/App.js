@@ -1,8 +1,8 @@
-import React, {useState} from "react";
+import React from "react";
 import styled from "styled-components";
 import Header from "./components/Header";
 import './App.css'
-import Project from "./components/Todo/List";
+import Project from "./components/Todo/Project";
 
 const Body = styled.section`
 /* position: absolute; */

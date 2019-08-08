@@ -31,7 +31,6 @@ export default class QuickAdd extends Component {
           onChange={evt => this.setState({ text: evt.target.value })}
         />
         {/* <Button>할 일 추가</Button> */}
-        <Button onClick={this.props.onCancel}>취소</Button>
       </div>
     );
   }

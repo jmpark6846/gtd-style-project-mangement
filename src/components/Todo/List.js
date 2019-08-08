@@ -6,9 +6,12 @@ import QuickAdd from "../QuickAdd/QuickAdd";
 import uuid from "uuid/v4";
 
 const ListPane = styled.div``;
+const ListHeader = styled.header``;
 
-export default class Board extends Component {
+export default class List extends Component {
   state = {
+    isAddShown: false,
+    heading: "취업준비",
     todos: {
       1: {
         id: 1,
@@ -24,14 +27,10 @@ export default class Board extends Component {
         done: true,
         createdAt: Date.now()
       }
-    },
-    isAddShown: false
+    }
   };
 
-  _handleChangeTodo = (evt, id) => {
-    // const newEditing = { ...this.state.editing }
-    // this.setState({ editing: { ...this.state.editing, [id]: evt.target.value } })
-  };
+  _handleChangeTodo = (evt, id) => {};
   _handleCloseQuickAdd = () => {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
@@ -47,28 +46,40 @@ export default class Board extends Component {
     };
     this.setState({ todos: { ...this.state.todos, [id]: newTodo } });
   };
+  _handleCheckTodo = ({ id }) => {
+    let selectedTodo = { ...this.state.todos[id] }
+    selectedTodo.done = !selectedTodo.done
+    this.setState({ todos: { ...this.state.todos, [id]: selectedTodo} });
+  };
   render() {
     const { todos, newTodo } = this.state;
     return (
       <ListPane>
-        {Object.keys(todos).map(id => (
-          <Todo
-            key={id}
-            author={todos[id].author}
-            text={todos[id].text}
-            done={todos[id].done}
-            onChange={evt => this._handleChangeTodo(evt, id)}
-          />
-        ))}
-        {this.state.isAddShown && (
-          <QuickAdd
-            onSubmit={this._handleAddTodo}
-            onCancel={this._handleCloseQuickAdd}
-          />
-        )}
-        {!this.state.isAddShown && (
-          <Button onClick={this._handleCloseQuickAdd}>추가하기</Button>
-        )}
+        <div>{this.state.heading}</div>
+        <div>
+          {Object.keys(todos).map(id => (
+            <Todo
+              key={id}
+              author={todos[id].author}
+              text={todos[id].text}
+              done={todos[id].done}
+              onCheck={() => this._handleCheckTodo({ id })}
+              // onChange={evt => this._handleChangeTodo(evt, id)}
+            />
+          ))}
+        </div>
+
+        <div>
+          {this.state.isAddShown && (
+            <QuickAdd
+              onSubmit={this._handleAddTodo}
+              onCancel={this._handleCloseQuickAdd}
+            />
+          )}
+          {!this.state.isAddShown && (
+            <Button onClick={this._handleCloseQuickAdd}>추가하기</Button>
+          )}
+        </div>
       </ListPane>
     );
   }
