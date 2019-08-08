@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-let compositionend = false;
+let compositionend = true;
 export default class QuickAdd extends Component {
   static propTypes = {
     onSubmit: PropTypes.func,
