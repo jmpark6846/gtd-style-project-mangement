@@ -1,33 +1,38 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Button } from "../common";
 
 export default class QuickAdd extends Component {
   static propTypes = {
-    onSubmit: PropTypes.func
-  }
+    onSubmit: PropTypes.func,
+    onCancel: PropTypes.func
+  };
 
   state = {
-    text:""
-  }
+    text: ""
+  };
 
-  _handleKeyDown = ({ keyCode }) => {
-    const { text } = this.state
-    if (keyCode === 13) {
-      this.props.onSubmit({ text })
-      this.setState({text:""})
+  _handleKeyDown = ({ key }) => {
+    if (key === "Enter") {
+      this.props.onSubmit({ text: this.state.text });
+      this.setState({ text: "" });
+    } else if (key === "Escape") {
+      this.props.onCancel()
     }
   };
 
   render() {
     return (
-    <div>
-      <input
-        value={this.state.text}
-        placeholder="할 일"
-        onKeyDown={evt => this._handleKeyDown(evt)}
+      <div>
+        <input
+          value={this.state.text}
+          placeholder="할 일"
+          onKeyDown={evt => this._handleKeyDown(evt)}
           onChange={evt => this.setState({ text: evt.target.value })}
-      />
-    </div>
-  );
+        />
+        {/* <Button>할 일 추가</Button> */}
+        <Button onClick={this.props.onCancel}>취소</Button>
+      </div>
+    );
   }
 }

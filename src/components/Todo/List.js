@@ -24,13 +24,18 @@ export default class Board extends Component {
         done: true,
         createdAt: Date.now()
       }
-    }
+    },
+    isAddShown: false
   };
 
   _handleChangeTodo = (evt, id) => {
     // const newEditing = { ...this.state.editing }
     // this.setState({ editing: { ...this.state.editing, [id]: evt.target.value } })
   };
+  _handleCloseQuickAdd = () => {
+    this.setState({ isAddShown: !this.state.isAddShown });
+  };
+
   _handleAddTodo = ({ text }) => {
     const id = uuid()
       .split("-")
@@ -55,8 +60,15 @@ export default class Board extends Component {
             onChange={evt => this._handleChangeTodo(evt, id)}
           />
         ))}
-        <Button>추가하기</Button>
-        <QuickAdd onSubmit={this._handleAddTodo} />
+        {this.state.isAddShown && (
+          <QuickAdd
+            onSubmit={this._handleAddTodo}
+            onCancel={this._handleCloseQuickAdd}
+          />
+        )}
+        {!this.state.isAddShown && (
+          <Button onClick={this._handleCloseQuickAdd}>추가하기</Button>
+        )}
       </ListPane>
     );
   }
