@@ -1,7 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import Header from "./components/Header";
 import './App.css'
+import 'codemirror/lib/codemirror.css'
+import Chat from "./components/Chat/Chat";
+import Code from "./components/Code/Code";
+
+
 const SharePage = styled.div`
   display: flex;
   height: 100%;
@@ -9,13 +14,8 @@ const SharePage = styled.div`
 
 const CodeEditorPane = styled.div`
   flex: 1;
+`
 
-`
-const ChatPane = styled.div`
-  width: 350px;
-  height: 100%;
-  background-color:#e6e6e6;
-`
 const Body = styled.section`
   flex: 1;
   height: 100%;
@@ -23,13 +23,14 @@ const Body = styled.section`
 
 
 function App() {
+  const [ code, setCode ] = useState('')
   return (
     <div className="App">
       <Header />
       <Body>
         <SharePage>
-          <CodeEditorPane>code editor</CodeEditorPane>
-          <ChatPane>chats</ChatPane>
+          <Code />
+          <Chat />
         </SharePage>
       </Body>
     </div>

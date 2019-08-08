@@ -1,0 +1,10 @@
+.DraftEditor-root{
+  margin-top: -16px;
+}
+
+[contenteditable=true]:empty:before {
+  content: attr(placeholder);
+  display: block;
+  color: #aaa;
+  cursor: text;
+}
