@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Button } from "../common";
 
 export default class QuickAdd extends Component {
   static propTypes = {
@@ -30,7 +29,6 @@ export default class QuickAdd extends Component {
           onKeyDown={evt => this._handleKeyDown(evt)}
           onChange={evt => this.setState({ text: evt.target.value })}
         />
-        {/* <Button>할 일 추가</Button> */}
       </div>
     );
   }

@@ -30,7 +30,6 @@ export default class List extends Component {
     }
   };
 
-  _handleChangeTodo = (evt, id) => {};
   _handleCloseQuickAdd = () => {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
@@ -46,13 +45,15 @@ export default class List extends Component {
     };
     this.setState({ todos: { ...this.state.todos, [id]: newTodo } });
   };
+
   _handleCheckTodo = ({ id }) => {
     let selectedTodo = { ...this.state.todos[id] }
     selectedTodo.done = !selectedTodo.done
     this.setState({ todos: { ...this.state.todos, [id]: selectedTodo} });
   };
+  
   render() {
-    const { todos, newTodo } = this.state;
+    const { todos } = this.state;
     return (
       <ListPane>
         <div>{this.state.heading}</div>
@@ -64,7 +65,6 @@ export default class List extends Component {
               text={todos[id].text}
               done={todos[id].done}
               onCheck={() => this._handleCheckTodo({ id })}
-              // onChange={evt => this._handleChangeTodo(evt, id)}
             />
           ))}
         </div>
