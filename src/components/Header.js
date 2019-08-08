@@ -2,10 +2,12 @@ import React from "react";
 import styled from "styled-components";
 
 const Nav = styled.nav`
+  position: fixed;
   display: flex;
+  width: 100%;
   justify-content: space-between;
   padding: 0 20px;
-  /* border-bottom: 1px solid #dbdbdb; */
+  border-bottom: 1px solid #fdfdfd;
   box-sizing: border-box;
   box-shadow: 0 5px 10px 0 rgba(0,64,128,.05);
   /* box-shadow: 0 4px 11px rgba(0,0,0,0.1); */
@@ -30,10 +32,9 @@ const Logo = styled.span`
 
 export default function Header() {
   return (
-    <Nav>
-      
+    <Nav>    
       <Logo>
-        CodeShare
+        projects
       </Logo>
     
       <Menu>
