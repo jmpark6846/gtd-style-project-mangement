@@ -3,28 +3,32 @@ import styled from "styled-components";
 import Todo from "./Todo";
 import { Button } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
-import uuid from "uuid/v4";
 import { todosRef, db } from "../../db";
+import { generateId, getSortedByOrderProp } from "../../utils";
 
 const ListPane = styled.div``;
 
 export default class List extends Component {
-  state = {
-    isAddShown: false,
-    heading: "취업준비",
-    length: 0,
-    todos: {}
-  };
+  constructor(props){
+    super(props)
+
+    this.state = {
+      isAddShown: false,
+      length: 0,
+      todos: {}
+    };
+    this.todosRef = db.ref('todos/' + this.props.id)
+  }
 
   componentDidMount() {
-    todosRef.on("value", data => {
+    this.todosRef.on("value", data => {
       const todos = data.val() || {};
       this.setState({ todos: todos, length: Object.keys(todos).length });
     });
   }
 
   componentWillUnmount() {
-    todosRef.off("value");
+    this.todosRef.off("value");
   }
 
   _handleCloseQuickAdd = () => {
@@ -32,9 +36,7 @@ export default class List extends Component {
   };
 
   _handleAddTodo = async ({ text, notes }) => {
-    const id = uuid()
-      .split("-")
-      .join("");
+    const id = generateId();
     const newTodo = {
       id,
       text,
@@ -44,7 +46,12 @@ export default class List extends Component {
       order: this.state.length + 1
     };
 
-    await db.ref("todos/" + id).set(newTodo);
+    try {
+      await db.ref(`todos/${this.props.id}/${id}`).set(newTodo);
+    } catch (error) {
+      console.error("error _handleAddTodo: " + error);
+    }
+
     this.setState({
       todos: { ...this.state.todos, [id]: newTodo },
       length: newTodo.order
@@ -55,20 +62,21 @@ export default class List extends Component {
     let selectedTodo = { ...this.state.todos[id] };
     selectedTodo.done = !selectedTodo.done;
 
-    await db.ref("todos/" + id).update({ done: selectedTodo.done });
+    try {
+      await db.ref(`todos/${this.props.id}/${id}`).update({ done: selectedTodo.done });  
+    } catch (error) {
+      console.error("error check todo: "+ error)
+    }
+    
     this.setState({ todos: { ...this.state.todos, [id]: selectedTodo } });
-  };
-
-  _getSortedByOrder = () => {
-    return Object.values(this.state.todos).sort((a, b) => a.order - b.order);
   };
 
   render() {
     return (
       <ListPane>
-        <div>{this.state.heading}</div>
+        <div>{this.props.heading}</div>
         <div>
-          {this._getSortedByOrder().map(todo => (
+          {getSortedByOrderProp(this.state.todos).map(todo => (
             <Todo
               key={todo.id}
               user={todo.user}

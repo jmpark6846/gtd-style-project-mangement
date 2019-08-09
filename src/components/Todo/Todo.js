@@ -34,6 +34,7 @@ function Todo({ user, done, text, onCheck, order }) {
     </TodoPane>
   );
 }
+
 Todo.propTypes = {
   user: PropTypes.string,
   text: PropTypes.string,
