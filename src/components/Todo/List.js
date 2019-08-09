@@ -1,23 +1,30 @@
 import React, { Component } from "react";
 import styled from "styled-components";
+import PropTypes from "prop-types";
 import Todo from "./Todo";
 import { Button } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
-import { todosRef, db } from "../../db";
+import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 
 const ListPane = styled.div``;
 
 export default class List extends Component {
+  static propTypes = {
+    projectId: PropTypes.string,
+    listId: PropTypes.string,
+    heading: PropTypes.string,
+    description: PropTypes.string
+  };
   constructor(props){
     super(props)
-
     this.state = {
       isAddShown: false,
       length: 0,
       todos: {}
     };
-    this.todosRef = db.ref('todos/' + this.props.id)
+    this.listRef = db.ref(`lists/${props.projectId}/${props.listId}`)
+    this.todosRef = db.ref(`todos/${props.listId}`)
   }
 
   componentDidMount() {
@@ -47,7 +54,7 @@ export default class List extends Component {
     };
 
     try {
-      await db.ref(`todos/${this.props.id}/${id}`).set(newTodo);
+      await db.ref(`todos/${this.props.listId}/${id}`).set(newTodo);
     } catch (error) {
       console.error("error _handleAddTodo: " + error);
     }
@@ -63,7 +70,7 @@ export default class List extends Component {
     selectedTodo.done = !selectedTodo.done;
 
     try {
-      await db.ref(`todos/${this.props.id}/${id}`).update({ done: selectedTodo.done });  
+      await db.ref(`todos/${this.props.listId}/${id}`).update({ done: selectedTodo.done });  
     } catch (error) {
       console.error("error check todo: "+ error)
     }
@@ -91,6 +98,8 @@ export default class List extends Component {
         <div>
           {this.state.isAddShown && (
             <QuickAdd
+              textPlaceholder="할 일 제목"
+              notesPlaceholder="노트(선택)"
               onSubmit={this._handleAddTodo}
               onCancel={this._handleCloseQuickAdd}
             />

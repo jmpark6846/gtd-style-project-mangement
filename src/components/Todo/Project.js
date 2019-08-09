@@ -5,23 +5,36 @@ import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import QuickAdd from "../QuickAdd/QuickAdd";
 
+let teamId = "random-team-id";
 export default class Project extends Component {
-  state = {
-    heading: "",
-    description: "",
-    lists: {},
-    length: 0,
-    isAddShown: false
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      id: "4a7be928b0bd42ac99829fd46d7e018a",
+      heading: "",
+      description: "",
+      lists: {},
+      length: 0,
+      isAddShown: false,
+      isEditShown: false
+    };
+    this.projectRef = db.ref(`projects/${teamId}/${this.state.id}`);
+    this.listRef = db.ref(`lists/${this.state.id}`);
+  }
+
   componentDidMount() {
-    db.ref("lists").on("value", data => {
+    this.projectRef.on('value', data => {
+      const project = data.val() || {};
+      this.setState(project)
+    })
+    this.listRef.on("value", data => {
       const lists = data.val() || {};
       this.setState({ lists, length: Object.keys(lists).length });
     });
   }
 
   componentWillUnmount() {
-    db.ref("lists").off("value");
+    this.listRef.off("value");
   }
 
   _handleAddList = async ({ text, notes }) => {
@@ -34,13 +47,11 @@ export default class Project extends Component {
       order: this.state.length + 1
     };
     try {
-      await db.ref("lists/" + id).set({
+      await db.ref(`lists/${this.state.id}/${id}`).set({
         ...newList,
-        team: "",
-        createdAt: Date.now(),
+        projects: this.state.id,
+        createdAt: Date.now()
       });
-
-      await db.ref("list/")
     } catch (error) {
       console.error("error _handleAddList: " + error);
     }
@@ -51,12 +62,32 @@ export default class Project extends Component {
         [id]: newList
       },
       length: newList.order,
-      isAddShown: false,
+      isAddShown: false
     });
   };
 
-  _handleToggleQuickAdd = () => {
-    this.setState({ isAddShown: !this.state.isAddShown });
+  _handleUpdateProject = async ({ text, notes }) => {
+    try {
+      await this.projectRef.update({
+        heading: text,
+        description: notes
+      });
+    } catch (error) {
+      console.log("error updating project: " + error);
+    }
+    this.setState({
+      heading: text,
+      description: notes,
+      isEditShown: false,
+    });
+  };
+
+  _handleToggleQuickAdd = (type) => {
+    const newState =
+      type === "add"
+        ? { isAddShown: !this.state.isAddShown }
+        : { isEditShown: !this.state.isEditShown };
+    this.setState(newState);
   };
 
   render() {
@@ -66,17 +97,44 @@ export default class Project extends Component {
         <div>
           {this.state.isAddShown && (
             <QuickAdd
-              type="list"
+              textPlaceholder="새 프로젝트"
+              notesPlaceholder="설명(선택)"
               onSubmit={this._handleAddList}
-              onCancel={this._handleToggleQuickAdd}
+              onCancel={() => this._handleToggleQuickAdd("add")}
             />
           )}
           {!this.state.isAddShown && (
-            <Button onClick={this._handleToggleQuickAdd}>새 리스트 추가</Button>
+            <Button onClick={() => this._handleToggleQuickAdd("add")}>
+              새 리스트 추가
+            </Button>
+          )}
+          {this.state.isEditShown && (
+            <QuickAdd
+              textPlaceholder="프로젝트 이름"
+              notesPlaceholder="설명(선택)"
+              text={this.state.heading}
+              notes={this.state.description}
+              onSubmit={this._handleUpdateProject}
+              onCancel={() => this._handleToggleQuickAdd("edit")}
+            />
+          )}
+          {!this.state.isEditShown && (
+            <div>
+              <div>{this.state.heading}</div>
+              <Button onClick={() => this._handleToggleQuickAdd("edit")}>
+                프로젝트명 수정
+              </Button>
+            </div>
           )}
         </div>
         {getSortedByOrderProp(this.state.lists).map(list => (
-          <List key={list.id} {...list}/>
+          <List
+            key={list.id}
+            projectId={this.state.id}
+            listId={list.id}
+            heading={list.heading}
+            description={list.description}
+          />
         ))}
       </div>
     );

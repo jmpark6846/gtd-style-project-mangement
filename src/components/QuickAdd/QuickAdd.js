@@ -1,34 +1,25 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Box, Input } from "../common";
+import { Box, Input, Button } from "../common";
 import ContentEditable from "react-contenteditable";
 
 let compositionend = true;
-let placeholderTexts = {
-  list: {
-    text: "새 리스트",
-    notes: "설명(선택)",
-  },
-  todo: {
-    text: "새 할 일",
-    notes: "노트(선택)"
-  }
-}
 
 export default class QuickAdd extends Component {
   static propTypes = {
-    type: PropTypes.string,
+    textPlaceholder: PropTypes.string,
+    notesPlaceholder: PropTypes.string,
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func
   };
-  static defaultProps = {
-    type: "todo",
+  constructor(props) {
+    super(props)
+    this.state = {
+      text: props.text || "",
+      notes: props.notes || ""
+    }
   }
-  state = {
-    text: "",
-    notes: ""
-  };
-
+  
   _handleKeyDown = e => {
     if (e.key === "Enter") {
       if (!compositionend || this.state.text === "") {
@@ -40,6 +31,7 @@ export default class QuickAdd extends Component {
       this.props.onCancel();
     }
   };
+
   handleComposition = event => {
     compositionend = event.type === "compositionend";
   };
@@ -49,7 +41,7 @@ export default class QuickAdd extends Component {
       <Box>
         <Input
           value={this.state.text}
-          placeholder={placeholderTexts[this.props.type].text}
+          placeholder={this.props.textPlaceholder}
           onCompositionStart={this.handleComposition}
           onCompositionUpdate={this.handleComposition}
           onCompositionEnd={this.handleComposition}
@@ -60,7 +52,7 @@ export default class QuickAdd extends Component {
         />
         <ContentEditable
           html={this.state.notes}
-          placeholder={placeholderTexts[this.props.type].notes}
+          placeholder={this.props.notesPlaceholder}
           onChange={evt => {
             this.setState({ notes: evt.target.value });
           }}
