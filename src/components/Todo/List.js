@@ -7,21 +7,24 @@ import uuid from "uuid/v4";
 import { todosRef, db } from "../../db";
 
 const ListPane = styled.div``;
-// const ListHeader = styled.header``;
 
 export default class List extends Component {
   state = {
     isAddShown: false,
     heading: "취업준비",
+    length: 0,
     todos: {}
   };
 
   componentDidMount() {
-    todosRef.on('value', data => this.setState({ todos: data.val() }))
+    todosRef.on("value", data => {
+      const todos = data.val() || {};
+      this.setState({ todos: todos, length: Object.keys(todos).length });
+    });
   }
-  
+
   componentWillUnmount() {
-    todosRef.off('value')
+    todosRef.off("value");
   }
 
   _handleCloseQuickAdd = () => {
@@ -37,34 +40,42 @@ export default class List extends Component {
       text,
       notes,
       done: false,
-      author: "jmpark6846"
+      user: "jmpark6846",
+      order: this.state.length + 1
     };
 
-    await db.ref('todos/' + id).set(newTodo)
-    this.setState({ todos: { ...this.state.todos, [id]: newTodo } });
+    await db.ref("todos/" + id).set(newTodo);
+    this.setState({
+      todos: { ...this.state.todos, [id]: newTodo },
+      length: newTodo.order
+    });
   };
 
   _handleCheckTodo = async ({ id }) => {
     let selectedTodo = { ...this.state.todos[id] };
     selectedTodo.done = !selectedTodo.done;
 
-    await db.ref('todos/'+id).update({ done: selectedTodo.done })
+    await db.ref("todos/" + id).update({ done: selectedTodo.done });
     this.setState({ todos: { ...this.state.todos, [id]: selectedTodo } });
   };
 
+  _getSortedByOrder = () => {
+    return Object.values(this.state.todos).sort((a, b) => a.order - b.order);
+  };
+
   render() {
-    const { todos } = this.state;
     return (
       <ListPane>
         <div>{this.state.heading}</div>
-        <div> 
-          {Object.keys(todos).map(id => (
+        <div>
+          {this._getSortedByOrder().map(todo => (
             <Todo
-              key={id}
-              author={todos[id].author}
-              text={todos[id].text}
-              done={todos[id].done}
-              onCheck={() => this._handleCheckTodo({ id })}
+              key={todo.id}
+              user={todo.user}
+              text={todo.text}
+              done={todo.done}
+              order={todo.order}
+              onCheck={() => this._handleCheckTodo({ id: todo.id })}
             />
           ))}
         </div>

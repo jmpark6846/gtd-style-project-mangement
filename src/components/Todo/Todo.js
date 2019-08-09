@@ -24,17 +24,18 @@ const Checkbox = styled.input`
   margin-right: 5px;
 `;
 
-function Todo({ author, done, text, onCheck }) {
+function Todo({ user, done, text, onCheck, order }) {
   return (
     <TodoPane>
       <Checkbox type="checkbox" checked={done} onChange={onCheck} />
       <TodoText>{text}</TodoText>
-      <AuthorLabel>{author}</AuthorLabel>
+      <AuthorLabel>{user}</AuthorLabel>
+      <span>{order}</span>
     </TodoPane>
   );
 }
 Todo.propTypes = {
-  author: PropTypes.string,
+  user: PropTypes.string,
   text: PropTypes.string,
   done: PropTypes.bool,
 };
