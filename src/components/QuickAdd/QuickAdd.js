@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Box, Input } from "../common";
+import ContentEditable from "react-contenteditable";
 
 let compositionend = true;
 export default class QuickAdd extends Component {
@@ -13,7 +14,6 @@ export default class QuickAdd extends Component {
     text: "",
     notes: ""
   };
-  noteRef = React.createRef()
 
   _handleKeyDown = e => {
     if (e.key === "Enter") {
@@ -21,7 +21,7 @@ export default class QuickAdd extends Component {
         return;
       }
       this.props.onSubmit({ text: this.state.text, notes: this.state.notes });
-      this.setState({ text: "", notes:"" });
+      this.setState({ text: "", notes: "" });
     } else if (e.key === "Escape") {
       this.props.onCancel();
     }
@@ -29,7 +29,7 @@ export default class QuickAdd extends Component {
   handleComposition = event => {
     compositionend = event.type === "compositionend";
   };
-  
+
   render() {
     return (
       <Box>
@@ -44,13 +44,12 @@ export default class QuickAdd extends Component {
             this.setState({ text: evt.target.value });
           }}
         />
-        <div
-          dangerouslySetInnerHTML = {{__html: this.state.notes}}
+        <ContentEditable
+          html={this.state.notes}
           placeholder="노트(선택)"
           onChange={evt => {
             this.setState({ notes: evt.target.value });
           }}
-          contentEditable
         />
       </Box>
     );
