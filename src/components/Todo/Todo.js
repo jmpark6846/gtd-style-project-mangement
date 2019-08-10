@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
+import { Checkbox } from "../common";
 
 const TodoPane = styled.div`
   display: flex;
@@ -20,10 +21,6 @@ const AuthorLabel = styled.label`
 
 const TodoText = styled.div``;
 
-const Checkbox = styled.input`
-  margin-right: 5px;
-`;
-
 function Todo({ user, done, text, onCheck }) {
   return (
     <TodoPane
@@ -34,7 +31,7 @@ function Todo({ user, done, text, onCheck }) {
       }}
       
     >
-      <Checkbox type="checkbox" checked={done} onChange={onCheck} />
+      <Checkbox checked={done} onChange={onCheck} />
       <TodoText>{text}</TodoText>
       <AuthorLabel>{user}</AuthorLabel>
     </TodoPane>

@@ -11,8 +11,15 @@ const SlideContainerPane = styled.div`
   left: 0;
   background-color: white;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+`;
+
+const SlideControlPane = styled.div`
+  display: flex;
+  justify-content: ${props=>props.justifyContent};
+  width: 350px;
 `;
 
 export default class SlideContainer extends Component {
@@ -21,30 +28,33 @@ export default class SlideContainer extends Component {
   };
   handlePrev = () => {
     if (this.props.current < 0) {
-      throw new RangeError("슬라이드 인덱스는 0 보다 작을 수 없습니다.")
+      throw new RangeError("슬라이드 인덱스는 0 보다 작을 수 없습니다.");
     }
-    this.props.onPrev()
-  }
+    this.props.onPrev();
+  };
   handleNext = () => {
     if (this.props.current > this.props.children.length - 1) {
-      throw new RangeError("슬라이드 인덱스는 슬라이드 갯수보다 클 수 없습니다.")
+      throw new RangeError(
+        "슬라이드 인덱스는 슬라이드 갯수보다 클 수 없습니다."
+      );
     }
-    this.props.onNext()
-  }
+    this.props.onNext();
+  };
   render() {
-    const slidesLength = this.props.children.length
+    const slidesLength = this.props.children.length;
     return (
       <SlideContainerPane>
         {this.props.children[this.props.current]}
-        <div>
-          <Button onClick={this.handlePrev} hidden={this.props.current === 0}>prev</Button>
-          {this.props.current < slidesLength - 1 ? 
+        <SlideControlPane justifyContent={this.props.current === 0 ? "center":"space-between"}>
+          {this.props.current !== 0 && (
+            <Button onClick={this.handlePrev}>prev</Button>
+          )}
+          {this.props.current < slidesLength - 1 ? (
             <Button onClick={this.handleNext}>next</Button>
-            :
+          ) : (
             <Button onClick={this.props.onSubmit}>submit</Button>
-          }
-          
-        </div>
+          )}
+        </SlideControlPane>
       </SlideContainerPane>
     );
   }
