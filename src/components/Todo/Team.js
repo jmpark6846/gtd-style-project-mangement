@@ -13,7 +13,7 @@ export default class Team extends Component {
     super(props);
     this.state = {
       id: this.props.match.params.teamId || "",
-      heading: "",
+      name: "",
       description: "",
       lists: {},
       length: 0,
@@ -72,14 +72,14 @@ export default class Team extends Component {
   _handleUpdateTeam = async ({ text, notes }) => {
     try {
       await this.teamRef.update({
-        heading: text,
+        name: text,
         description: notes
       });
     } catch (error) {
       console.log("error updating team: " + error);
     }
     this.setState({
-      heading: text,
+      name: text,
       description: notes,
       isEditShown: false
     });
@@ -100,7 +100,7 @@ export default class Team extends Component {
           <QuickAdd
             textPlaceholder="프로젝트 이름"
             notesPlaceholder="설명(선택)"
-            text={this.state.heading}
+            text={this.state.name}
             notes={this.state.description}
             onSubmit={this._handleUpdateTeam}
             onCancel={() => this._handleToggleQuickAdd("edit")}
@@ -109,7 +109,7 @@ export default class Team extends Component {
         {!this.state.isEditShown && (
           <React.Fragment>
             <DetailHeadingPane>
-              <Heading>{this.state.heading}</Heading>
+              <Heading>{this.state.name}</Heading>
               <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>
                 <FiMoreHorizontal />
               </IconButton>

@@ -24,7 +24,7 @@ const Checkbox = styled.input`
   margin-right: 5px;
 `;
 
-function Todo({ user, done, text, onCheck, order }) {
+function Todo({ user, done, text, onCheck }) {
   return (
     <TodoPane
       draggable={true}

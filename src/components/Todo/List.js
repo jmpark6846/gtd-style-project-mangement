@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Todo from "./Todo";
-import { Button, SmallHeading } from "../common";
+import { Button, SubHeading } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
@@ -70,13 +70,12 @@ class List extends Component {
   };
 
   _handleCheckTodo = async ({ id }) => {
-    let selectedTodo = { ...this.state.todos[id] };
-    selectedTodo.done = !selectedTodo.done;
+    let selectedTodo = { ...this.state.todos[id], done: !this.state.todos[id].done };
 
     try {
       await db
         .ref(`todos/${this.props.listId}/${id}`)
-        .update({ done: selectedTodo.done });
+        .update({ done: selectedTodo.done, checkedAt: selectedTodo.done? Date.now() : null });
     } catch (error) {
       console.error("error check todo: " + error);
     }
@@ -85,17 +84,19 @@ class List extends Component {
   };
 
   render() {
+    const todosNotDone = getSortedByOrderProp(this.state.todos).filter(todo => !todo.done)
+
     return (
       <ListPane>
         <div>
           <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
-            <SmallHeading>{this.props.heading}</SmallHeading>
+            <SubHeading>{this.props.heading}</SubHeading>
           </Link>
           <ContentEditable html={this.props.description} />
         </div>
 
         <div>
-          {getSortedByOrderProp(this.state.todos).map(todo => (
+          {todosNotDone.map(todo => (
             <Todo
               key={todo.id}
               user={todo.user}

@@ -40,6 +40,7 @@ export default class ListDetailPage extends Component {
     this.listRef.on("value", data => {
       this.setState(data.val() || {});
     });
+
     this.todosRef.on("value", data => {
       const todos = data.val() || {};
       this.setState({ todos: todos, length: Object.keys(todos).length });
@@ -115,6 +116,7 @@ export default class ListDetailPage extends Component {
   _handleCloseQuickAdd = () => {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
+
 
   render() {
     return (
