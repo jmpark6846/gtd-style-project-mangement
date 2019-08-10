@@ -69,14 +69,14 @@ export default class Team extends Component {
     });
   };
 
-  _handleUpdateProject = async ({ text, notes }) => {
+  _handleUpdateTeam = async ({ text, notes }) => {
     try {
       await this.teamRef.update({
         heading: text,
         description: notes
       });
     } catch (error) {
-      console.log("error updating project: " + error);
+      console.log("error updating team: " + error);
     }
     this.setState({
       heading: text,
@@ -102,7 +102,7 @@ export default class Team extends Component {
             notesPlaceholder="설명(선택)"
             text={this.state.heading}
             notes={this.state.description}
-            onSubmit={this._handleUpdateProject}
+            onSubmit={this._handleUpdateTeam}
             onCancel={() => this._handleToggleQuickAdd("edit")}
           />
         )}
