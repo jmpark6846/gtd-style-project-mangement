@@ -1,8 +1,11 @@
 import React from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+
 import styled from "styled-components";
 import Header from "./components/Header";
 import './App.css'
-import Project from "./components/Todo/Project";
+import Team from "./components/Todo/Team";
+import ListDetailPage from "./pages/ListDetailPage";
 
 const Body = styled.section`
 /* position: absolute; */
@@ -15,7 +18,13 @@ function App() {
     <div className="App">
       <Header />
       <Body>
-        <Project />
+      <Router>
+          <Route exact path="/:teamId" component={Team} />
+          <Route path="/:teamId/lists/:listId" component={ListDetailPage} />
+        {/* <Route path="/signin" component={SignInPage} />
+        <Route path="/signup" component={SignUpPage} /> */}
+      </Router>
+        
       </Body>
     </div>
   );

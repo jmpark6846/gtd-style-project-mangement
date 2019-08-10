@@ -2,12 +2,15 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Todo from "./Todo";
-import { Button } from "../common";
+import { Button, SmallHeading } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
+import ContentEditable from "react-contenteditable";
 
-const ListPane = styled.div``;
+const ListPane = styled.div`
+  margin-bottom: 20px;
+`;
 
 export default class List extends Component {
   static propTypes = {
@@ -16,15 +19,15 @@ export default class List extends Component {
     heading: PropTypes.string,
     description: PropTypes.string
   };
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       isAddShown: false,
       length: 0,
       todos: {}
     };
-    this.listRef = db.ref(`lists/${props.projectId}/${props.listId}`)
-    this.todosRef = db.ref(`todos/${props.listId}`)
+    this.listRef = db.ref(`lists/${props.projectId}/${props.listId}`);
+    this.todosRef = db.ref(`todos/${props.listId}`);
   }
 
   componentDidMount() {
@@ -70,18 +73,24 @@ export default class List extends Component {
     selectedTodo.done = !selectedTodo.done;
 
     try {
-      await db.ref(`todos/${this.props.listId}/${id}`).update({ done: selectedTodo.done });  
+      await db
+        .ref(`todos/${this.props.listId}/${id}`)
+        .update({ done: selectedTodo.done });
     } catch (error) {
-      console.error("error check todo: "+ error)
+      console.error("error check todo: " + error);
     }
-    
+
     this.setState({ todos: { ...this.state.todos, [id]: selectedTodo } });
   };
 
   render() {
     return (
       <ListPane>
-        <div>{this.props.heading}</div>
+        <div>
+          <SmallHeading>{this.props.heading}</SmallHeading>
+          <ContentEditable html={this.props.description} />
+        </div>
+
         <div>
           {getSortedByOrderProp(this.state.todos).map(todo => (
             <Todo
@@ -105,7 +114,9 @@ export default class List extends Component {
             />
           )}
           {!this.state.isAddShown && (
-            <Button onClick={this._handleCloseQuickAdd}>추가하기</Button>
+            <Button onClick={this._handleCloseQuickAdd} small>
+              추가하기
+            </Button>
           )}
         </div>
       </ListPane>

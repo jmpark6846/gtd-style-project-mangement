@@ -7,7 +7,7 @@ const TodoPane = styled.div`
   align-items: center;
   border: 1px solid white;
   border-radius: 5px;
-
+  margin-bottom: 5px;
   :hover {
     color: #000;
   }
@@ -26,11 +26,17 @@ const Checkbox = styled.input`
 
 function Todo({ user, done, text, onCheck, order }) {
   return (
-    <TodoPane>
+    <TodoPane
+      draggable={true}
+      onDragStart={event => {
+        event.dataTransfer.setData("text/plain", "dragg!");
+        console.log(event.dataTransfer);
+      }}
+      
+    >
       <Checkbox type="checkbox" checked={done} onChange={onCheck} />
       <TodoText>{text}</TodoText>
       <AuthorLabel>{user}</AuthorLabel>
-      <span>{order}</span>
     </TodoPane>
   );
 }
@@ -38,7 +44,7 @@ function Todo({ user, done, text, onCheck, order }) {
 Todo.propTypes = {
   user: PropTypes.string,
   text: PropTypes.string,
-  done: PropTypes.bool,
+  done: PropTypes.bool
 };
 
 export default Todo;

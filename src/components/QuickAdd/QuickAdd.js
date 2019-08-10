@@ -57,6 +57,7 @@ export default class QuickAdd extends Component {
             this.setState({ notes: evt.target.value });
           }}
         />
+        
       </Box>
     );
   }

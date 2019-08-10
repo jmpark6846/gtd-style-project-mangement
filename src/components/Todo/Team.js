@@ -1,16 +1,18 @@
 import React, { Component } from "react";
 import List from "./List";
-import { Button } from "../common";
+import { FiMoreHorizontal } from "react-icons/fi";
+import { Button, Heading, IconButton, DetailHeadingPane, DetailDescriptionPane } from "../common";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import QuickAdd from "../QuickAdd/QuickAdd";
+import ContentEditable from "react-contenteditable";
 
-let teamId = "random-team-id";
-export default class Project extends Component {
+
+export default class Team extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: "4a7be928b0bd42ac99829fd46d7e018a",
+      id: this.props.match.params.teamId || "",
       heading: "",
       description: "",
       lists: {},
@@ -18,15 +20,15 @@ export default class Project extends Component {
       isAddShown: false,
       isEditShown: false
     };
-    this.projectRef = db.ref(`projects/${teamId}/${this.state.id}`);
+    this.teamRef = db.ref(`teams/${this.state.id}`);
     this.listRef = db.ref(`lists/${this.state.id}`);
   }
 
   componentDidMount() {
-    this.projectRef.on('value', data => {
+    this.teamRef.on("value", data => {
       const project = data.val() || {};
-      this.setState(project)
-    })
+      this.setState(project);
+    });
     this.listRef.on("value", data => {
       const lists = data.val() || {};
       this.setState({ lists, length: Object.keys(lists).length });
@@ -34,6 +36,7 @@ export default class Project extends Component {
   }
 
   componentWillUnmount() {
+    this.teamRef.off("value")
     this.listRef.off("value");
   }
 
@@ -68,7 +71,7 @@ export default class Project extends Component {
 
   _handleUpdateProject = async ({ text, notes }) => {
     try {
-      await this.projectRef.update({
+      await this.teamRef.update({
         heading: text,
         description: notes
       });
@@ -78,11 +81,11 @@ export default class Project extends Component {
     this.setState({
       heading: text,
       description: notes,
-      isEditShown: false,
+      isEditShown: false
     });
   };
 
-  _handleToggleQuickAdd = (type) => {
+  _handleToggleQuickAdd = type => {
     const newState =
       type === "add"
         ? { isAddShown: !this.state.isAddShown }
@@ -91,42 +94,32 @@ export default class Project extends Component {
   };
 
   render() {
-    console.log(this.state.lists);
     return (
       <div>
-        <div>
-          {this.state.isAddShown && (
-            <QuickAdd
-              textPlaceholder="새 프로젝트"
-              notesPlaceholder="설명(선택)"
-              onSubmit={this._handleAddList}
-              onCancel={() => this._handleToggleQuickAdd("add")}
-            />
-          )}
-          {!this.state.isAddShown && (
-            <Button onClick={() => this._handleToggleQuickAdd("add")}>
-              새 리스트 추가
-            </Button>
-          )}
-          {this.state.isEditShown && (
-            <QuickAdd
-              textPlaceholder="프로젝트 이름"
-              notesPlaceholder="설명(선택)"
-              text={this.state.heading}
-              notes={this.state.description}
-              onSubmit={this._handleUpdateProject}
-              onCancel={() => this._handleToggleQuickAdd("edit")}
-            />
-          )}
-          {!this.state.isEditShown && (
-            <div>
-              <div>{this.state.heading}</div>
-              <Button onClick={() => this._handleToggleQuickAdd("edit")}>
-                프로젝트명 수정
-              </Button>
-            </div>
-          )}
-        </div>
+        {this.state.isEditShown && (
+          <QuickAdd
+            textPlaceholder="프로젝트 이름"
+            notesPlaceholder="설명(선택)"
+            text={this.state.heading}
+            notes={this.state.description}
+            onSubmit={this._handleUpdateProject}
+            onCancel={() => this._handleToggleQuickAdd("edit")}
+          />
+        )}
+        {!this.state.isEditShown && (
+          <React.Fragment>
+            <DetailHeadingPane>
+              <Heading>{this.state.heading}</Heading>
+              <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>
+                <FiMoreHorizontal />
+              </IconButton>
+            </DetailHeadingPane>
+            <DetailDescriptionPane>
+              <ContentEditable html={this.state.description} />
+            </DetailDescriptionPane>
+          </React.Fragment>
+        )}
+
         {getSortedByOrderProp(this.state.lists).map(list => (
           <List
             key={list.id}
@@ -136,6 +129,19 @@ export default class Project extends Component {
             description={list.description}
           />
         ))}
+        {this.state.isAddShown && (
+          <QuickAdd
+            textPlaceholder="새 리스트"
+            notesPlaceholder="설명(선택)"
+            onSubmit={this._handleAddList}
+            onCancel={() => this._handleToggleQuickAdd("add")}
+          />
+        )}
+        {!this.state.isAddShown && (
+          <Button onClick={() => this._handleToggleQuickAdd("add")}>
+            새 리스트 추가
+          </Button>
+        )}
       </div>
     );
   }
