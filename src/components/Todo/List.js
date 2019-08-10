@@ -7,12 +7,13 @@ import QuickAdd from "../QuickAdd/QuickAdd";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import ContentEditable from "react-contenteditable";
+import { Link, withRouter } from "react-router-dom";
 
 const ListPane = styled.div`
   margin-bottom: 20px;
 `;
 
-export default class List extends Component {
+class List extends Component {
   static propTypes = {
     projectId: PropTypes.string,
     listId: PropTypes.string,
@@ -87,7 +88,9 @@ export default class List extends Component {
     return (
       <ListPane>
         <div>
-          <SmallHeading>{this.props.heading}</SmallHeading>
+          <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
+            <SmallHeading>{this.props.heading}</SmallHeading>
+          </Link>
           <ContentEditable html={this.props.description} />
         </div>
 
@@ -123,3 +126,4 @@ export default class List extends Component {
     );
   }
 }
+export default withRouter(List);
