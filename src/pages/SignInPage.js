@@ -3,10 +3,10 @@ import { withRouter } from "react-router-dom";
 import { Button } from "../components/common";
 import { auth, provider, db } from "../db";
 import { generateId } from "../utils";
+import { Subscribe } from "unstated";
+import AuthContainer from '../containers/AuthContainer'
 
 class SignInPage extends React.Component {
-  state = {};
-
   async componentDidMount() {
     let googleAuth = null;
     try {
@@ -42,7 +42,7 @@ class SignInPage extends React.Component {
               .catch(error => console.error("error adding user: " + error));
           }
           // 스토어에 인증 정보 저장
-          console.log(user);
+          this.props.auth.setAuth(user)
           this.props.history.push(`/projects`);
         });
     }
@@ -51,12 +51,17 @@ class SignInPage extends React.Component {
     await auth.signInWithRedirect(provider);
   };
   render() {
+    console.log(this.props.auth)
     return (
+      
       <div>
-        <Button onClick={this._handleSignIn}>Sign in with Google</Button>
+        <Subscribe to={[AuthContainer]}>
+        { authContainer => <Button onClick={()=>this._handleSignIn(AuthContainer.setAuth)}>Sign in with Google</Button>}
+      </Subscribe>
+        
       </div>
     );
   }
 }
 
-export default SignInPage;
+export default withRouter(SignInPage);

@@ -8,6 +8,8 @@ import Project from "./components/Todo/Project";
 import ListDetailPage from "./pages/ListDetailPage";
 import SignInPage from "./pages/SignInPage";
 import ProjectListPage from "./pages/ProjectListPage";
+import { Provider, Subscribe } from "unstated";
+import AuthContainer from "./containers/AuthContainer";
 
 const Body = styled.section`
   /* position: absolute; */
@@ -20,14 +22,21 @@ function App() {
     <div className="App">
       <Header />
       <Body>
-        <Router>
-          
-          <Route exact path="/" component={SignInPage} />
-          <Route exact path="/projects" component={ProjectListPage} />
-          <Route exact path="/projects/:projectId" component={Project} />
-          <Route path="/projects/:projectId/lists/:listId" component={ListDetailPage} />
-          
-        </Router> 
+        <Provider>
+          <Subscribe to={[AuthContainer]}>
+            {auth => (
+              <Router>
+                <Route exact path="/" render={() => <SignInPage auth={auth}/>} />
+                <Route exact path="/projects" render={() => <ProjectListPage auth={auth}/>} />
+                <Route exact path="/projects/:projectId" component={Project} />
+                <Route
+                  path="/projects/:projectId/lists/:listId"
+                  component={ListDetailPage}
+                />
+              </Router>
+            )}
+          </Subscribe>
+        </Provider>
       </Body>
     </div>
   );

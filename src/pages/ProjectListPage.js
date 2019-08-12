@@ -47,6 +47,7 @@ class ProjectListPage extends React.Component {
   };
 
   render() {
+    console.log(this.props.auth)
     return (
       <div>
         <Heading>Project</Heading>
