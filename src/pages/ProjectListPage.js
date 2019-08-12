@@ -34,6 +34,14 @@ class ProjectListPage extends React.Component {
     );
   };
 
+  async componentDidMount() {
+    // try {
+    //   await db.ref('projects')
+    // } catch (error) {
+      
+    // }  
+  }
+  
   _handleAddTeam = () => {
     
   };
