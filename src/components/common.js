@@ -68,8 +68,7 @@ export const Heading = styled.h2`
 export const SubHeading = styled.h3`
   font-weight: 600;
   font-size: 1.2rem;
-  text-align: ${props=>props.center && "center"}
-  /* margin-bottom: 10px; */
+  text-align: ${props=>props.center && "center"};
 `;
 
 export const DetailHeadingPane = styled.div`
@@ -83,4 +82,8 @@ export const DetailDescriptionPane = styled.div`
   text-align: center;
   color: gray;
   margin-bottom: 20px;
+`;
+
+export const Pane = styled.div.attrs(props => ({ width: props.width }))`
+  width: ${props => props.width};
 `;

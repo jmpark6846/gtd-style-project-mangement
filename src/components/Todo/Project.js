@@ -8,11 +8,11 @@ import QuickAdd from "../QuickAdd/QuickAdd";
 import ContentEditable from "react-contenteditable";
 
 
-export default class Team extends Component {
+export default class Project extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: this.props.match.params.teamId || "",
+      id: this.props.match.params.projectId || "",
       name: "",
       description: "",
       lists: {},
@@ -20,12 +20,12 @@ export default class Team extends Component {
       isAddShown: false,
       isEditShown: false
     };
-    this.teamRef = db.ref(`teams/${this.state.id}`);
+    this.projectRef = db.ref(`projects/${this.state.id}`);
     this.listRef = db.ref(`lists/${this.state.id}`);
   }
 
   componentDidMount() {
-    this.teamRef.on("value", data => {
+    this.projectRef.on("value", data => {
       const project = data.val() || {};
       this.setState(project);
     });
@@ -36,7 +36,7 @@ export default class Team extends Component {
   }
 
   componentWillUnmount() {
-    this.teamRef.off("value")
+    this.projectRef.off("value")
     this.listRef.off("value");
   }
 
@@ -66,17 +66,17 @@ export default class Team extends Component {
       },
       length: newList.order,
       isAddShown: false
-    });
-  };
+    }); 
+  }; 
 
-  _handleUpdateTeam = async ({ text, notes }) => {
+  _handleUpdateProject = async ({ text, notes }) => {
     try {
       await this.teamRef.update({
         name: text,
         description: notes
       });
     } catch (error) {
-      console.log("error updating team: " + error);
+      console.log("error updating project: " + error);
     }
     this.setState({
       name: text,
@@ -102,7 +102,7 @@ export default class Team extends Component {
             notesPlaceholder="설명(선택)"
             text={this.state.name}
             notes={this.state.description}
-            onSubmit={this._handleUpdateTeam}
+            onSubmit={this._handleUpdateProject}
             onCancel={() => this._handleToggleQuickAdd("edit")}
           />
         )}

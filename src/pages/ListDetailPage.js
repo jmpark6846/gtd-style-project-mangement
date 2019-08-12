@@ -11,7 +11,6 @@ import {
 import { FiMoreHorizontal } from "react-icons/fi";
 import { getSortedByOrderProp, generateId } from "../utils";
 import ContentEditable from "react-contenteditable";
-import List from "../components/Todo/List";
 import { db } from "../db";
 import Todo from "../components/Todo/Todo";
 
@@ -21,7 +20,7 @@ export default class ListDetailPage extends Component {
   // }
   constructor(props) {
     super(props);
-    const { teamId, listId } = this.props.match.params;
+    const { projectId, listId } = this.props.match.params;
 
     this.state = {
       id: listId || "",
@@ -32,7 +31,7 @@ export default class ListDetailPage extends Component {
       isAddShown: false,
       isEditShown: false
     };
-    this.listRef = db.ref(`lists/${teamId}/${listId}`);
+    this.listRef = db.ref(`lists/${projectId}/${listId}`);
     this.todosRef = db.ref(`todos/${listId}`);
   }
 

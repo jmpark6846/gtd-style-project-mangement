@@ -1,25 +1,27 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { Button } from "../common";
+import { MdClose } from "react-icons/md";
+import { Button, Pane } from "../common";
 
-const SlideContainerPane = styled.div`
+const SlideContainerPane = styled.div.attrs(props => ({ show: props.show }))`
+  display: ${props => (props.show ? "block" : "none")};
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
   background-color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 `;
 
-const SlideControlPane = styled.div`
+export const Slide = styled.div.attrs(props => ({ width: props.width }))`
+  width: ${props => props.width || "100%"};
+`;
+
+const SlideControlPane = styled(Pane)`
   display: flex;
-  justify-content: ${props=>props.justifyContent};
-  width: 350px;
+  justify-content: space-between;
+  margin-top: 30px;
 `;
 
 export default class SlideContainer extends Component {
@@ -42,19 +44,37 @@ export default class SlideContainer extends Component {
   };
   render() {
     const slidesLength = this.props.children.length;
+    const slide = this.props.children[this.props.current];
     return (
-      <SlideContainerPane>
-        {this.props.children[this.props.current]}
-        <SlideControlPane justifyContent={this.props.current === 0 ? "center":"space-between"}>
-          {this.props.current !== 0 && (
-            <Button onClick={this.handlePrev}>prev</Button>
-          )}
-          {this.props.current < slidesLength - 1 ? (
-            <Button onClick={this.handleNext}>next</Button>
-          ) : (
-            <Button onClick={this.props.onSubmit}>submit</Button>
-          )}
-        </SlideControlPane>
+      <SlideContainerPane show={this.props.show}>
+        <MdClose onClick={this.props.onCloseClick} />
+        <Pane width={this.props.width}>
+          {slide}
+          <SlideControlPane>
+            {this.props.current !== 0 && (
+              <Button onClick={this.handlePrev}>prev</Button>
+            )}
+            {this.props.current < slidesLength - 1 ? (
+              <Button
+                onClick={this.handleNext}
+                disabled={
+                  slide.props.next === undefined ? false : !slide.props.next
+                }
+              >
+                next
+              </Button>
+            ) : (
+              <Button
+                onClick={this.props.onSubmit}
+                disabled={
+                  slide.props.next === undefined ? false : !slide.props.submit
+                }
+              >
+                submit
+              </Button>
+            )}
+          </SlideControlPane>
+        </Pane>
       </SlideContainerPane>
     );
   }
