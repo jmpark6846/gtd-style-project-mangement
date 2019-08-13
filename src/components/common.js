@@ -77,13 +77,17 @@ export const DetailHeadingPane = styled.div`
   align-items: center;
   margin-bottom: 3px;
 `;
-
+  
 export const DetailDescriptionPane = styled.div`
   text-align: center;
   color: gray;
   margin-bottom: 20px;
 `;
 
-export const Pane = styled.div.attrs(props => ({ width: props.width }))`
+export const Pane = styled.div.attrs(props => ({
+  width: props.width,
+  position: props.position
+}))`
   width: ${props => props.width};
+  position: ${props => props.position}
 `;

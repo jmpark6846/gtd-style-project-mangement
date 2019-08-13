@@ -23,14 +23,10 @@ class ProjectListPage extends React.Component {
   state = {
     name: "",
     teammate: "",
-    projects: [],
+    projects: {},
     isSlideShown: false,
     currentSlide: 0,
     slideCount: 2
-  };
-
-  _sortByCreatedAt = () => {
-    return this.state.projects.sort((a, b) => a.createdAt - b.createdAt);
   };
 
   async componentDidMount() {
@@ -43,7 +39,7 @@ class ProjectListPage extends React.Component {
             user = data.val();
             this.props.auth.setAuth(user);
 
-            let projectIds = Object.keys(user.projects);
+            let projectIds = Object.keys(user.projects || {});
             Promise.all(
               projectIds.map(id =>
                 db
@@ -52,11 +48,16 @@ class ProjectListPage extends React.Component {
                   .once("value")
                   .then(snapshot => snapshot.val())
               )
-            ).then(result => this.setState({ projects: result }));
+            ).then(result => {
+              let _result = {};
+              result.forEach(project => (_result[project.id] = project));
+              this.setState({ projects: _result });
+            });
           });
       }
     });
   }
+
   componentWillMount() {
     if (this.props.auth.state.id) {
       db.ref("users")
@@ -92,11 +93,20 @@ class ProjectListPage extends React.Component {
       });
       this.setState({
         isSlideShown: false,
+        currentSlide: 0,
+        name: "",
+        teammate: "",
         projects: { ...this.state.projects, [id]: newProject }
       });
     } catch (error) {
       console.error("error submit: " + error);
     }
+  };
+
+  _sortByCreatedAt = () => {
+    return Object.values(this.state.projects).sort(
+      (a, b) => a.createdAt - b.createdAt
+    );
   };
 
   render() {

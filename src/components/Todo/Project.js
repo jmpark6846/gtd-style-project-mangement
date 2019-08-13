@@ -14,6 +14,7 @@ import List from "./List";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
+import Dropdown from "../Dropdown/Dropdown";
 
 class Project extends Component {
   constructor(props) {
@@ -92,6 +93,21 @@ class Project extends Component {
     });
   };
 
+  
+  _handleDeleteProject = () => {
+    this.projectRef.set(null).catch(error => console.error(error));
+    this.listRef.set(null).catch(error => console.error(error));
+    let projects = { ...this.props.auth.state.projects }
+    delete projects[this.state.id]
+    
+    db.ref(`users/${this.props.auth.state.id}/projects`)
+    .set(projects)
+    .catch(error => console.error(error));
+    
+    this.props.auth.setAuth({ projects })
+    this.props.history.push('/projects')
+  };
+  
   _handleToggleQuickAdd = type => {
     const newState =
       type === "add"
@@ -117,9 +133,17 @@ class Project extends Component {
           <React.Fragment>
             <DetailHeadingPane>
               <Heading>{this.state.name}</Heading>
-              <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>
+              <Dropdown>
+                <div onClick={() => this._handleToggleQuickAdd("edit")}>
+                  정보 수정
+                </div>
+                <div>팀원 추가</div>
+                <div onClick={this._handleDeleteProject}>프로젝트 삭제</div>
+              </Dropdown>
+              
+              {/* <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>
                 <FiMoreHorizontal />
-              </IconButton>
+              </IconButton> */}
             </DetailHeadingPane>
             <DetailDescriptionPane>
               <ContentEditable html={this.state.description} />

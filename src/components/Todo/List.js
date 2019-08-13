@@ -17,12 +17,14 @@ const ListPane = styled.div`
 `;
 
 class List extends Component {
+  
   static propTypes = {
     projectId: PropTypes.string,
     listId: PropTypes.string,
     heading: PropTypes.string,
     description: PropTypes.string
   };
+
   constructor(props) {
     super(props);
     this.state = {
