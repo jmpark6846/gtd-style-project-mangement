@@ -1,15 +1,16 @@
 import React, { Component } from "react";
-import styled from "styled-components";
 import PropTypes from "prop-types";
-import Todo from "./Todo";
-import { Button, SubHeading } from "../common";
-import QuickAdd from "../QuickAdd/QuickAdd";
-import { db } from "../../db";
-import { generateId, getSortedByOrderProp } from "../../utils";
 import ContentEditable from "react-contenteditable";
 import { Link, withRouter } from "react-router-dom";
 import { Subscribe } from "unstated";
+import styled from "styled-components";
+
+import QuickAdd from "../QuickAdd/QuickAdd";
+import { Button, SubHeading } from "../common";
+import Todo from "./Todo";
 import AuthContainer from "../../containers/AuthContainer";
+import { db } from "../../db";
+import { generateId, getSortedByOrderProp } from "../../utils";
 
 const ListPane = styled.div`
   margin-bottom: 20px;
@@ -54,15 +55,15 @@ class List extends Component {
       id,
       text,
       notes,
-      user: {username, id: userId},
+      user: { username, id: userId },
       done: false,
       order: this.state.length + 1
     };
 
     try {
-      await db.ref(`todos/${this.props.listId}/${id}`).set(newTodo);
+      await this.todosRef.child(id).set(newTodo);
     } catch (error) {
-      console.error("error _handleAddTodo: " + error);
+      console.error("error adding todo: " + error);
     }
 
     this.setState({
@@ -78,12 +79,10 @@ class List extends Component {
     };
 
     try {
-      await db
-        .ref(`todos/${this.props.listId}/${id}`)
-        .update({
-          done: selectedTodo.done,
-          checkedAt: selectedTodo.done ? Date.now() : null
-        });
+      await this.todosRef.child(id).update({
+        done: selectedTodo.done,
+        checkedAt: selectedTodo.done ? Date.now() : null
+      });
     } catch (error) {
       console.error("error check todo: " + error);
     }
@@ -125,7 +124,14 @@ class List extends Component {
                 <QuickAdd
                   textPlaceholder="할 일 제목"
                   notesPlaceholder="노트(선택)"
-                  onSubmit={({ text, notes })=>this._handleAddTodo({ text, notes, username:auth.state.username, userId:auth.state.id})}
+                  onSubmit={({ text, notes }) =>
+                    this._handleAddTodo({
+                      text,
+                      notes,
+                      username: auth.state.username,
+                      userId: auth.state.id
+                    })
+                  }
                   onCancel={this._handleCloseQuickAdd}
                 />
               )}

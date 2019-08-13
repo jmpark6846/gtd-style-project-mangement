@@ -39,6 +39,10 @@ class SignInPage extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    firebaseAuth.onAuthStateChanged(() => { })
+  }
+
   _handleSignIn = async () => {
     await firebaseAuth.signInWithRedirect(provider);
   };

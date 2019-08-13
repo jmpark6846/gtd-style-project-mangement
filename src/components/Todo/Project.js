@@ -1,13 +1,19 @@
 import React, { Component } from "react";
-import { withRouter } from 'react-router-dom'
+import { withRouter } from "react-router-dom";
 import ContentEditable from "react-contenteditable";
 import { FiMoreHorizontal } from "react-icons/fi";
-import { Button, Heading, IconButton, DetailHeadingPane, DetailDescriptionPane } from "../common";
+
+import {
+  Button,
+  Heading,
+  IconButton,
+  DetailHeadingPane,
+  DetailDescriptionPane
+} from "../common";
 import List from "./List";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
-
 
 class Project extends Component {
   constructor(props) {
@@ -27,8 +33,7 @@ class Project extends Component {
 
   componentDidMount() {
     this.projectRef.on("value", data => {
-      const project = data.val() || {};
-      this.setState(project);
+      this.setState(data.val() || {});
     });
     this.listRef.on("value", data => {
       const lists = data.val() || {};
@@ -37,13 +42,13 @@ class Project extends Component {
   }
 
   componentWillUnmount() {
-    this.projectRef.off("value")
+    this.projectRef.off("value");
     this.listRef.off("value");
   }
 
   _handleAddList = async ({ text, notes }) => {
     const id = generateId();
-    const { username, id: userId } = this.props.auth.state
+    const { username, id: userId } = this.props.auth.state;
     const newList = {
       id,
       heading: text,
@@ -68,8 +73,8 @@ class Project extends Component {
       },
       length: newList.order,
       isAddShown: false
-    }); 
-  }; 
+    });
+  };
 
   _handleUpdateProject = async ({ text, notes }) => {
     try {
@@ -149,5 +154,4 @@ class Project extends Component {
   }
 }
 
-
-export default withRouter(Project)
+export default withRouter(Project);

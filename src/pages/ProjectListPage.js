@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   Heading,
   Button,
@@ -30,9 +30,7 @@ class ProjectListPage extends React.Component {
   };
 
   _sortByCreatedAt = () => {
-    return this.state.projects.sort(
-      (a, b) => a.createdAt - b.createdAt
-    );
+    return this.state.projects.sort((a, b) => a.createdAt - b.createdAt);
   };
 
   async componentDidMount() {
@@ -41,7 +39,7 @@ class ProjectListPage extends React.Component {
         let user = null;
         db.ref("users")
           .child(googleAuth.uid)
-          .once("value", data => {
+          .on("value", data => {
             user = data.val();
             this.props.auth.setAuth(user);
 
@@ -54,19 +52,24 @@ class ProjectListPage extends React.Component {
                   .once("value")
                   .then(snapshot => snapshot.val())
               )
-            ).then(result => this.setState({ projects: result}));
+            ).then(result => this.setState({ projects: result }));
           });
       }
     });
   }
   componentWillMount() {
+    if (this.props.auth.state.id) {
+      db.ref("users")
+        .child(this.props.auth.state.id)
+        .off("value");
+    }
     firebaseAuth.onAuthStateChanged(() => {});
   }
 
   _handleAddProject = async () => {
     try {
       const id = generateId();
-      const { username, id: userId } = this.props.auth.state
+      const { username, id: userId } = this.props.auth.state;
       const newProject = {
         id,
         name: this.state.name,
@@ -102,10 +105,8 @@ class ProjectListPage extends React.Component {
         <Heading>Project</Heading>
         {this._sortByCreatedAt().map(project => (
           <Link key={project.id} to={`${this.props.match.path}/${project.id}`}>
-          <ProjectBox >
-            {project.name}
-            </ProjectBox>
-            </Link>
+            <ProjectBox>{project.name}</ProjectBox>
+          </Link>
         ))}
         <Button onClick={() => this.setState({ isSlideShown: true })}>
           프로젝트 만들기
