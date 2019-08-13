@@ -12,7 +12,7 @@ import {
 } from "../common";
 import List from "./List";
 import QuickAdd from "../QuickAdd/QuickAdd";
-import { db } from "../../db";
+import { db, firebaseAuth } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import Dropdown from "../Dropdown/Dropdown";
 
@@ -33,6 +33,19 @@ class Project extends Component {
   }
 
   componentDidMount() {
+    firebaseAuth.onAuthStateChanged(googleAuth => {
+      if (googleAuth !== null) {
+        let user = null;
+        db.ref("users")
+          .child(googleAuth.uid)
+          .on("value", data => {
+            user = data.val();
+            this.props.auth.setAuth(user);
+          
+          })
+      }
+    })
+    
     this.projectRef.on("value", data => {
       this.setState(data.val() || {});
     });
@@ -134,11 +147,11 @@ class Project extends Component {
             <DetailHeadingPane>
               <Heading>{this.state.name}</Heading>
               <Dropdown>
-                <div onClick={() => this._handleToggleQuickAdd("edit")}>
+                <Dropdown.Item onClick={() => this._handleToggleQuickAdd("edit")}>
                   정보 수정
-                </div>
-                <div>팀원 추가</div>
-                <div onClick={this._handleDeleteProject}>프로젝트 삭제</div>
+                </Dropdown.Item>
+                <Dropdown.Item>팀원 추가</Dropdown.Item>
+                <Dropdown.Item onClick={this._handleDeleteProject}>프로젝트 삭제</Dropdown.Item>
               </Dropdown>
               
               {/* <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>

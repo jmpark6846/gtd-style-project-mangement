@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Subscribe } from "unstated";
 import AuthContainer from "../containers/AuthContainer";
 import { firebaseAuth } from "../db";
+import Dropdown, { DropdownItem } from "./Dropdown/Dropdown";
 
 const Nav = styled.nav`
   position: fixed;
@@ -35,12 +36,12 @@ const Logo = styled.span`
 `;
 
 class Header extends React.Component {
-  signOut = async authContainerSignOut => {
+  signOut = async authSignOut => {
     const that = this
     firebaseAuth
       .signOut()
       .then(function() {
-        authContainerSignOut();
+        authSignOut();
         that.props.history.push("/");
       })
       .catch(function(error) {
@@ -54,11 +55,12 @@ class Header extends React.Component {
         {auth => (
           <Nav>
             <Logo><Link to={`/projects`} >projects</Link></Logo>
-            <Menu>
-              <MenuItem onClick={() => this.signOut(auth.signOut)}>
-                {auth.state.username}
-              </MenuItem>
-            </Menu>
+            <Dropdown
+              alignRight={true}
+              select={auth.state.username}
+            >
+              <Dropdown.Item onClick={() => this.signOut(auth.signOut)}>로그아웃</Dropdown.Item>
+            </Dropdown>
           </Nav>
         )}
       </Subscribe>

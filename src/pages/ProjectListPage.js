@@ -30,14 +30,14 @@ class ProjectListPage extends React.Component {
   };
 
   async componentDidMount() {
-    firebaseAuth.onAuthStateChanged(googleAuth => {
-      if (googleAuth !== null) {
-        let user = null;
-        db.ref("users")
-          .child(googleAuth.uid)
-          .on("value", data => {
-            user = data.val();
-            this.props.auth.setAuth(user);
+      firebaseAuth.onAuthStateChanged(googleAuth => {
+        if (googleAuth !== null) {
+          let user = null;
+          db.ref("users")
+            .child(googleAuth.uid)
+            .on("value", data => {
+              user = data.val();
+              this.props.auth.setAuth(user);
 
             let projectIds = Object.keys(user.projects || {});
             Promise.all(
