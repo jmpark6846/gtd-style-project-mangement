@@ -33,7 +33,7 @@ function Todo({ user, done, text, onCheck }) {
     >
       <Checkbox checked={done} onChange={onCheck} />
       <TodoText>{text}</TodoText>
-      <AuthorLabel>{user}</AuthorLabel>
+      <AuthorLabel>{user.username}</AuthorLabel>
     </TodoPane>
   );
 }

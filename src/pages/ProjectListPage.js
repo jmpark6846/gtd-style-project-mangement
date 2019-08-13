@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom'
 import {
   Heading,
   Button,
@@ -29,7 +30,7 @@ class ProjectListPage extends React.Component {
   };
 
   _sortByCreatedAt = () => {
-    return Object.values(this.state.projects).sort(
+    return this.state.projects.sort(
       (a, b) => a.createdAt - b.createdAt
     );
   };
@@ -65,9 +66,11 @@ class ProjectListPage extends React.Component {
   _handleAddProject = async () => {
     try {
       const id = generateId();
+      const { username, id: userId } = this.props.auth.state
       const newProject = {
         id,
         name: this.state.name,
+        user: { username, id: userId },
         createdAt: Date.now(),
         description: "",
         lists: {}
@@ -94,13 +97,15 @@ class ProjectListPage extends React.Component {
   };
 
   render() {
-    console.log(this.props.auth.state);
-    console.log(this.state);
     return (
       <div>
         <Heading>Project</Heading>
         {this._sortByCreatedAt().map(project => (
-          <ProjectBox key={project.id}>{project.name}</ProjectBox>
+          <Link key={project.id} to={`${this.props.match.path}/${project.id}`}>
+          <ProjectBox >
+            {project.name}
+            </ProjectBox>
+            </Link>
         ))}
         <Button onClick={() => this.setState({ isSlideShown: true })}>
           프로젝트 만들기

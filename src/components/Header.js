@@ -1,5 +1,5 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import styled from "styled-components";
 import { Subscribe } from "unstated";
 import AuthContainer from "../containers/AuthContainer";
@@ -53,7 +53,7 @@ class Header extends React.Component {
       <Subscribe to={[AuthContainer]}>
         {auth => (
           <Nav>
-            <Logo>projects</Logo>
+            <Logo><Link to={`/projects`} >projects</Link></Logo>
             <Menu>
               <MenuItem onClick={() => this.signOut(auth.signOut)}>
                 {auth.state.username}

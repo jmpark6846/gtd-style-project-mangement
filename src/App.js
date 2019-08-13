@@ -40,7 +40,7 @@ class App extends React.Component {
                   <Route
                     exact
                     path="/projects/:projectId"
-                    component={Project}
+                    render={() => <Project auth={auth} />}
                   />
                   <Route
                     path="/projects/:projectId/lists/:listId"

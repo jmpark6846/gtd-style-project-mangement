@@ -8,6 +8,8 @@ import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import ContentEditable from "react-contenteditable";
 import { Link, withRouter } from "react-router-dom";
+import { Subscribe } from "unstated";
+import AuthContainer from "../../containers/AuthContainer";
 
 const ListPane = styled.div`
   margin-bottom: 20px;
@@ -46,14 +48,14 @@ class List extends Component {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
 
-  _handleAddTodo = async ({ text, notes }) => {
+  _handleAddTodo = async ({ text, notes, username, userId }) => {
     const id = generateId();
     const newTodo = {
       id,
       text,
       notes,
+      user: {username, id: userId},
       done: false,
-      user: "jmpark6846",
       order: this.state.length + 1
     };
 
@@ -70,12 +72,18 @@ class List extends Component {
   };
 
   _handleCheckTodo = async ({ id }) => {
-    let selectedTodo = { ...this.state.todos[id], done: !this.state.todos[id].done };
+    let selectedTodo = {
+      ...this.state.todos[id],
+      done: !this.state.todos[id].done
+    };
 
     try {
       await db
         .ref(`todos/${this.props.listId}/${id}`)
-        .update({ done: selectedTodo.done, checkedAt: selectedTodo.done? Date.now() : null });
+        .update({
+          done: selectedTodo.done,
+          checkedAt: selectedTodo.done ? Date.now() : null
+        });
     } catch (error) {
       console.error("error check todo: " + error);
     }
@@ -84,46 +92,52 @@ class List extends Component {
   };
 
   render() {
-    const todosNotDone = getSortedByOrderProp(this.state.todos).filter(todo => !todo.done)
+    const todosNotDone = getSortedByOrderProp(this.state.todos).filter(
+      todo => !todo.done
+    );
 
     return (
-      <ListPane>
-        <div>
-          <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
-            <SubHeading>{this.props.heading}</SubHeading>
-          </Link>
-          <ContentEditable html={this.props.description} />
-        </div>
+      <Subscribe to={[AuthContainer]}>
+        {auth => (
+          <ListPane>
+            <div>
+              <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
+                <SubHeading>{this.props.heading}</SubHeading>
+              </Link>
+              <ContentEditable html={this.props.description} />
+            </div>
 
-        <div>
-          {todosNotDone.map(todo => (
-            <Todo
-              key={todo.id}
-              user={todo.user}
-              text={todo.text}
-              done={todo.done}
-              order={todo.order}
-              onCheck={() => this._handleCheckTodo({ id: todo.id })}
-            />
-          ))}
-        </div>
+            <div>
+              {todosNotDone.map(todo => (
+                <Todo
+                  key={todo.id}
+                  user={todo.user}
+                  text={todo.text}
+                  done={todo.done}
+                  order={todo.order}
+                  onCheck={() => this._handleCheckTodo({ id: todo.id })}
+                />
+              ))}
+            </div>
 
-        <div>
-          {this.state.isAddShown && (
-            <QuickAdd
-              textPlaceholder="할 일 제목"
-              notesPlaceholder="노트(선택)"
-              onSubmit={this._handleAddTodo}
-              onCancel={this._handleCloseQuickAdd}
-            />
-          )}
-          {!this.state.isAddShown && (
-            <Button onClick={this._handleCloseQuickAdd} small>
-              추가하기
-            </Button>
-          )}
-        </div>
-      </ListPane>
+            <div>
+              {this.state.isAddShown && (
+                <QuickAdd
+                  textPlaceholder="할 일 제목"
+                  notesPlaceholder="노트(선택)"
+                  onSubmit={({ text, notes })=>this._handleAddTodo({ text, notes, username:auth.state.username, userId:auth.state.id})}
+                  onCancel={this._handleCloseQuickAdd}
+                />
+              )}
+              {!this.state.isAddShown && (
+                <Button onClick={this._handleCloseQuickAdd} small>
+                  추가하기
+                </Button>
+              )}
+            </div>
+          </ListPane>
+        )}
+      </Subscribe>
     );
   }
 }

@@ -2,9 +2,6 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { Button } from "../components/common";
 import { firebaseAuth, provider, db } from "../db";
-import { generateId } from "../utils";
-import { Subscribe } from "unstated";
-import AuthContainer from "../containers/AuthContainer";
 
 class SignInPage extends React.Component {
   async componentDidMount() {
