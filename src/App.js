@@ -17,29 +17,43 @@ const Body = styled.section`
   padding: 0px 30px;
 `;
 
-function App() {
-  return (
-    <div className="App">
-      <Header />
-      <Body>
-        <Provider>
-          <Subscribe to={[AuthContainer]}>
-            {auth => (
-              <Router>
-                <Route exact path="/" render={() => <SignInPage auth={auth}/>} />
-                <Route exact path="/projects" render={() => <ProjectListPage auth={auth}/>} />
-                <Route exact path="/projects/:projectId" component={Project} />
-                <Route
-                  path="/projects/:projectId/lists/:listId"
-                  component={ListDetailPage}
-                />
-              </Router>
-            )}
-          </Subscribe>
-        </Provider>
-      </Body>
-    </div>
-  );
+class App extends React.Component {
+  render() {
+    return (
+      <div className="App">
+        <Router>
+          <Header />
+          <Body>
+            <Subscribe to={[AuthContainer]}>
+              {auth => (
+                <React.Fragment>
+                  <Route
+                    exact
+                    path="/"
+                    render={() => <SignInPage auth={auth} />}
+                  />
+                  <Route
+                    exact
+                    path="/projects"
+                    render={() => <ProjectListPage auth={auth} />}
+                  />
+                  <Route
+                    exact
+                    path="/projects/:projectId"
+                    component={Project}
+                  />
+                  <Route
+                    path="/projects/:projectId/lists/:listId"
+                    component={ListDetailPage}
+                  />
+                </React.Fragment>
+              )}
+            </Subscribe>
+          </Body>
+        </Router>
+      </div>
+    );
+  }
 }
 
 export default App;

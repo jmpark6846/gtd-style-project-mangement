@@ -1,5 +1,9 @@
 import React from "react";
+import { withRouter } from "react-router-dom";
 import styled from "styled-components";
+import { Subscribe } from "unstated";
+import AuthContainer from "../containers/AuthContainer";
+import { firebaseAuth } from "../db";
 
 const Nav = styled.nav`
   position: fixed;
@@ -9,7 +13,7 @@ const Nav = styled.nav`
   padding: 0 20px;
   border-bottom: 1px solid #fdfdfd;
   box-sizing: border-box;
-  box-shadow: 0 5px 10px 0 rgba(0,64,128,.05);
+  box-shadow: 0 5px 10px 0 rgba(0, 64, 128, 0.05);
   /* box-shadow: 0 4px 11px rgba(0,0,0,0.1); */
   background-color: #ffffff;
   height: 50px;
@@ -30,16 +34,36 @@ const Logo = styled.span`
   /* color: #daa592; */
 `;
 
-export default function Header() {
-  return (
-    <Nav>    
-      <Logo>
-        projects
-      </Logo>
-    
-      <Menu>
-        <MenuItem>Park Joonmo</MenuItem>
-      </Menu>
-    </Nav>
-  );
+class Header extends React.Component {
+  signOut = async authContainerSignOut => {
+    const that = this
+    firebaseAuth
+      .signOut()
+      .then(function() {
+        authContainerSignOut();
+        that.props.history.push("/");
+      })
+      .catch(function(error) {
+        console.error("error signout: " + error);
+      });
+  };
+
+  render() {
+    return (
+      <Subscribe to={[AuthContainer]}>
+        {auth => (
+          <Nav>
+            <Logo>projects</Logo>
+            <Menu>
+              <MenuItem onClick={() => this.signOut(auth.signOut)}>
+                {auth.state.username}
+              </MenuItem>
+            </Menu>
+          </Nav>
+        )}
+      </Subscribe>
+    );
+  }
 }
+
+export default withRouter(Header);

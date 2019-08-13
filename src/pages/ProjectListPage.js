@@ -6,7 +6,7 @@ import {
   InputUnderline,
   Box
 } from "../components/common";
-import { db } from "../db";
+import { db, firebaseAuth } from "../db";
 import styled from "styled-components";
 import { withRouter } from "react-router-dom";
 import SlideContainer, { Slide } from "../components/Slide/SlideContainer";
@@ -21,45 +21,97 @@ const ProjectBox = styled(Box)`
 class ProjectListPage extends React.Component {
   state = {
     name: "",
-    teammate:"",
-    teams: {},
+    teammate: "",
+    projects: [],
     isSlideShown: false,
     currentSlide: 0,
     slideCount: 2
   };
 
   _sortByCreatedAt = () => {
-    return Object.values(this.state.teams).sort(
+    return Object.values(this.state.projects).sort(
       (a, b) => a.createdAt - b.createdAt
     );
   };
 
   async componentDidMount() {
-    // try {
-    //   await db.ref('projects')
-    // } catch (error) {
-      
-    // }  
+    firebaseAuth.onAuthStateChanged(googleAuth => {
+      if (googleAuth !== null) {
+        let user = null;
+        db.ref("users")
+          .child(googleAuth.uid)
+          .once("value", data => {
+            user = data.val();
+            this.props.auth.setAuth(user);
+
+            let projectIds = Object.keys(user.projects);
+            Promise.all(
+              projectIds.map(id =>
+                db
+                  .ref("projects")
+                  .child(id)
+                  .once("value")
+                  .then(snapshot => snapshot.val())
+              )
+            ).then(result => this.setState({ projects: result}));
+          });
+      }
+    });
   }
-  
-  _handleAddTeam = () => {
-    
+  componentWillMount() {
+    firebaseAuth.onAuthStateChanged(() => {});
+  }
+
+  _handleAddProject = async () => {
+    try {
+      const id = generateId();
+      const newProject = {
+        id,
+        name: this.state.name,
+        createdAt: Date.now(),
+        description: "",
+        lists: {}
+      };
+      await db.ref("projects/" + id).set(newProject);
+
+      await db
+        .ref("users")
+        .child(this.props.auth.state.id)
+        .update({
+          projects: { ...this.props.auth.state.projects, [id]: true }
+        });
+
+      this.props.auth.setAuth({
+        projects: { ...this.props.auth.state.projects, [id]: true }
+      });
+      this.setState({
+        isSlideShown: false,
+        projects: { ...this.state.projects, [id]: newProject }
+      });
+    } catch (error) {
+      console.error("error submit: " + error);
+    }
   };
 
   render() {
-    console.log(this.props.auth)
+    console.log(this.props.auth.state);
+    console.log(this.state);
     return (
       <div>
         <Heading>Project</Heading>
         {this._sortByCreatedAt().map(project => (
-          <ProjectBox>{project.name}</ProjectBox>
+          <ProjectBox key={project.id}>{project.name}</ProjectBox>
         ))}
-        <Button onClick={()=>this.setState({ isSlideShown: true})}>프로젝트 만들기</Button>
+        <Button onClick={() => this.setState({ isSlideShown: true })}>
+          프로젝트 만들기
+        </Button>
         <SlideContainer
           current={this.state.currentSlide}
           width="500px"
           show={this.state.isSlideShown}
-          onCloseClick={()=>this.setState({ isSlideShown: false, name:"", teammate:""})}
+          onCloseClick={() =>
+            this.setState({ isSlideShown: false, name: "", teammate: "" })
+          }
           onPrev={() =>
             this.setState(prevState => ({
               currentSlide: prevState.currentSlide - 1
@@ -70,21 +122,7 @@ class ProjectListPage extends React.Component {
               currentSlide: prevState.currentSlide + 1
             }))
           }
-          onSubmit={async () => {
-            try {
-              const id = generateId()
-              await db.ref("projects/" + id).set({ 
-                id,
-                name: this.state.name,
-                createdAt: Date.now(),
-                description:"",
-                lists:{},
-              })
-              this.props.history.push(`projects/${id}`)
-            } catch (error) {
-              console.error("error submit: "+error)
-            }
-          }}
+          onSubmit={this._handleAddProject}
         >
           <Slide next={this.state.name !== ""}>
             <SubHeading>프로젝트 추가</SubHeading>
@@ -104,7 +142,12 @@ class ProjectListPage extends React.Component {
             />
           </Slide>
           <Slide submit={true}>
-          <Heading>그럼 시작해볼까요<span role="img" aria-label="smile">😃</span></Heading>
+            <Heading>
+              그럼 시작해볼까요
+              <span role="img" aria-label="smile">
+                😃
+              </span>
+            </Heading>
           </Slide>
         </SlideContainer>
       </div>
