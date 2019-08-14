@@ -2,13 +2,13 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { Box, Input, Button } from "../common";
-import styled from 'styled-components'
+import styled from "styled-components";
 
 const ControlPane = styled.div`
-  display:flex;
+  display: flex;
   margin-top: 0.8em;
   justify-content: space-between;
-`
+`;
 
 let compositionend = true;
 export default class QuickAdd extends Component {
@@ -28,13 +28,16 @@ export default class QuickAdd extends Component {
     };
   }
 
+  _handleSubmit = () => {
+    this.props.onSubmit({ text: this.state.text, notes: this.state.notes });
+    this.setState({ text: "", notes: "" });
+  };
   _handleKeyDown = e => {
     if (e.key === "Enter") {
       if (!compositionend || this.state.text === "") {
         return;
       }
-      this.props.onSubmit({ text: this.state.text, notes: this.state.notes });
-      this.setState({ text: "", notes: "" });
+      this._handleSubmit();
     } else if (e.key === "Escape") {
       this.props.onCancel();
     }
@@ -68,21 +71,12 @@ export default class QuickAdd extends Component {
         {this.props.children}
         <ControlPane>
           <div>
-          <Button
-              small
-              margin="0 7px 0 0"
-            onClick={() =>
-              this.props.onSubmit({
-                text: this.state.text,
-                notes: this.state.notes
-              })
-            }
-          >
-            변경사항 저장
-          </Button>
-          <Button small onClick={this.props.onCancel}>
-            취소
-          </Button>
+            <Button small margin="0 7px 0 0" onClick={this._handleSubmit}>
+              변경사항 저장
+            </Button>
+            <Button small onClick={this.props.onCancel}>
+              취소
+            </Button>
           </div>
           {this.props.onDelete != null && (
             <div>
