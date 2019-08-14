@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
+import { debounce } from "lodash";
 import { withRouter } from "react-router-dom";
 import { db, firebaseAuth } from "../db";
 import { generateId, getSortedByOrderProp } from "../utils";
@@ -7,7 +8,8 @@ import {
   Button,
   DetailDescriptionPane,
   DetailHeadingPane,
-  Heading
+  Heading,
+  Input
 } from "../components/common";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
@@ -23,6 +25,7 @@ class ProjectDetailPage extends Component {
       description: "",
       lists: {},
       length: 0,
+      teammate: "",
       isAddShown: false,
       isEditShown: false,
       isAddTeammateOpen: false
@@ -125,9 +128,23 @@ class ProjectDetailPage extends Component {
         : { isEditShown: !this.state.isEditShown };
     this.setState(newState);
   };
+
   _handleChangeTodo = ({ text, notes }) => {
     console.log(text, notes);
   };
+
+  _handleTeammateNameChange = e => {
+    this.setState({ teammate: e.target.value });
+    this._lookupTeammateName(e.target.value);
+  };
+
+  _lookupTeammateName = debounce(name => {
+    db.ref("users")
+      .orderByChild("username")
+      .equalTo(name)
+      .once("value", data => console.log(data.exists()));
+  }, 500);
+
   render() {
     return (
       <div>
@@ -193,7 +210,15 @@ class ProjectDetailPage extends Component {
           </Button>
         )}
         {this.state.isAddTeammateOpen && (
-          <Dialog onClose={() => this.setState({ isAddTeammateOpen: false })}>dsf</Dialog>
+          <Dialog onClose={() => this.setState({ isAddTeammateOpen: false })}>
+            <div>
+              <Heading>팀원 초대하기</Heading>
+              <Input
+                value={this.state.teammate}
+                onChange={this._handleTeammateNameChange}
+              />
+            </div>
+          </Dialog>
         )}
       </div>
     );
