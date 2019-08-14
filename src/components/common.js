@@ -26,7 +26,16 @@ export const IconButton = styled(Button)`
   font-size: 1rem;
 `;
 
-export const Box = styled.div`
+
+export const Pane = styled.div.attrs(props => ({
+  width: props.width,
+  position: props.position
+}))`
+  width: ${props => props.width};
+  position: ${props => props.position};
+`;
+
+export const Box = styled(Pane)`
   border: 1px solid #d9d9d9;
   border-radius: 1rem;
   padding: 1em 1.5em;
@@ -83,12 +92,4 @@ export const DetailDescriptionPane = styled.div`
   text-align: center;
   color: gray;
   margin-bottom: 20px;
-`;
-
-export const Pane = styled.div.attrs(props => ({
-  width: props.width,
-  position: props.position
-}))`
-  width: ${props => props.width};
-  position: ${props => props.position}
 `;
