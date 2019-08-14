@@ -6,14 +6,33 @@ import styled from "styled-components";
 
 
 const DropdownMenuPane = styled(Box).attrs(props => ({ right: props.right }))`
+  margin-top:3px;
+  border-radius:0.5rem;
   background-color: white;
   position: absolute;
-  width: 100px;
+  width: 150px;
+  padding: 0;
   right: ${props => props.right};
   /* box-shadow: rgba(67, 90, 111, 0.3) 0px 0px 1px, rgba(67, 90, 111, 0.47) 0px 8px 10px -4px; */
 `;
 
-export const DropdownItem = styled.div``;
+export const DropdownItem = styled.div`
+  cursor:pointer;
+  padding: 0.8em 1em;
+  background-color:white;
+
+  :first-child{
+    border-top-left-radius:inherit;
+    border-top-right-radius:inherit;
+  }
+  :last-child{
+    border-bottom-left-radius:inherit;
+    border-bottom-right-radius:inherit;
+  }
+  :hover{
+    background-color:lightgray;
+  }
+`;
 
 class Dropdown extends React.Component {
   static Item = DropdownItem;
