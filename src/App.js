@@ -1,15 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-
 import styled from "styled-components";
-import Header from "./components/Header";
+import { Subscribe } from "unstated";
 import "./App.css";
+import Header from "./components/Header";
 import Project from "./components/Todo/Project";
-import ListDetailPage from "./pages/ListDetailPage";
-import SignInPage from "./pages/SignInPage";
-import ProjectListPage from "./pages/ProjectListPage";
-import { Provider, Subscribe } from "unstated";
 import AuthContainer from "./containers/AuthContainer";
+import ListDetailPage from "./pages/ListDetailPage";
+import ProjectListPage from "./pages/ProjectListPage";
+import SignInPage from "./pages/SignInPage";
+
 
 const Body = styled.section`
   /* position: absolute; */

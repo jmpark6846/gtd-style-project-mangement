@@ -1,16 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import {
-  Heading,
-  Button,
-  SubHeading,
-  InputUnderline,
-  Box
-} from "../components/common";
-import { db, firebaseAuth } from "../db";
+import { Link, withRouter } from "react-router-dom";
 import styled from "styled-components";
-import { withRouter } from "react-router-dom";
+import { Box, Button, Heading, InputUnderline, SubHeading } from "../components/common";
 import SlideContainer, { Slide } from "../components/Slide/SlideContainer";
+import { db, firebaseAuth } from "../db";
 import { generateId } from "../utils";
 
 const ProjectBox = styled(Box)`
@@ -121,6 +114,7 @@ class ProjectListPage extends React.Component {
         <Button onClick={() => this.setState({ isSlideShown: true })}>
           프로젝트 만들기
         </Button>
+        
         <SlideContainer
           current={this.state.currentSlide}
           width="500px"

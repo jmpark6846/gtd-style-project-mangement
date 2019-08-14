@@ -1,16 +1,16 @@
-import React, { Component } from "react";
 import PropTypes from "prop-types";
+import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { Link, withRouter } from "react-router-dom";
-import { Subscribe } from "unstated";
 import styled from "styled-components";
-
-import QuickAdd from "../QuickAdd/QuickAdd";
-import { Button, SubHeading } from "../common";
-import Todo from "./Todo";
+import { Subscribe } from "unstated";
 import AuthContainer from "../../containers/AuthContainer";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
+import { Button, SubHeading } from "../common";
+import QuickAdd from "../QuickAdd/QuickAdd";
+import Todo from "./Todo";
+
 
 const ListPane = styled.div`
   margin-bottom: 20px;

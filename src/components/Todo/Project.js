@@ -1,20 +1,13 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
 import ContentEditable from "react-contenteditable";
-import { FiMoreHorizontal } from "react-icons/fi";
-
-import {
-  Button,
-  Heading,
-  IconButton,
-  DetailHeadingPane,
-  DetailDescriptionPane
-} from "../common";
-import List from "./List";
-import QuickAdd from "../QuickAdd/QuickAdd";
+import { withRouter } from "react-router-dom";
 import { db, firebaseAuth } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
+import { Button, DetailDescriptionPane, DetailHeadingPane, Heading } from "../common";
 import Dropdown from "../Dropdown/Dropdown";
+import QuickAdd from "../QuickAdd/QuickAdd";
+import List from "./List";
+
 
 class Project extends Component {
   constructor(props) {
@@ -128,7 +121,9 @@ class Project extends Component {
         : { isEditShown: !this.state.isEditShown };
     this.setState(newState);
   };
-
+  _handleChangeTodo = ({ text, notes }) => {
+    console.log(text, notes)
+  }
   render() {
     return (
       <div>
@@ -153,10 +148,6 @@ class Project extends Component {
                 <Dropdown.Item>팀원 추가</Dropdown.Item>
                 <Dropdown.Item onClick={this._handleDeleteProject}>프로젝트 삭제</Dropdown.Item>
               </Dropdown>
-              
-              {/* <IconButton onClick={() => this._handleToggleQuickAdd("edit")}>
-                <FiMoreHorizontal />
-              </IconButton> */}
             </DetailHeadingPane>
             <DetailDescriptionPane>
               <ContentEditable html={this.state.description} />
@@ -171,6 +162,7 @@ class Project extends Component {
             listId={list.id}
             heading={list.heading}
             description={list.description}
+            onSubmit={this._handleChangeTodo}
           />
         ))}
         {this.state.isAddShown && (

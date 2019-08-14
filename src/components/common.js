@@ -11,7 +11,7 @@ export const Button = styled.button`
   vertical-align: middle;
   text-decoration: none;
   text-align: center;
-  white-space: normal;
+  white-space: normal;  
   cursor: pointer;
 
   font-size: ${props => props.small && "0.9rem"};

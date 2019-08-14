@@ -5,7 +5,7 @@ import { Box, Input, Button } from "../common";
 
 let compositionend = true;
 
-export default class QuickAdd extends Component {
+export default class QuickEdit extends Component {
   static propTypes = {
     textPlaceholder: PropTypes.string,
     notesPlaceholder: PropTypes.string,
@@ -14,27 +14,18 @@ export default class QuickAdd extends Component {
     text: PropTypes.string,
     notes: PropTypes.string
   };
-  constructor(props) {
-    super(props)
-    this.state = {
-      text: props.text || "",
-      notes: props.notes || ""
-    }
-  }
-  
+
   _handleKeyDown = e => {
     if (e.key === "Enter") {
-      if (!compositionend || this.state.text === "") {
+      if (!compositionend || this.props.text === "") {
         return;
       }
-      this.props.onSubmit({ text: this.state.text, notes: this.state.notes });
-      this.setState({ text: "", notes: "" });
+      this.props.onSubmit({ text: this.props.text, notes: this.props.notes });
     } else if (e.key === "Escape") {
       this.props.onCancel();
     }
   };
 
-  
   handleComposition = event => {
     compositionend = event.type === "compositionend";
   };
@@ -43,22 +34,22 @@ export default class QuickAdd extends Component {
     return (
       <Box>
         <Input
-          value={this.state.text}
+          value={this.props.text}
           placeholder={this.props.textPlaceholder}
           onCompositionStart={this.handleComposition}
           onCompositionUpdate={this.handleComposition}
           onCompositionEnd={this.handleComposition}
           onKeyDown={this._handleKeyDown}
-          onChange={evt => {
-            this.setState({ text: evt.target.value });
-          }}
+          onChange={e =>
+            this.props.onChange({ target: "textEdit", value: e.target.value })
+          }
         />
         <ContentEditable
-          html={this.state.notes}
+          html={this.props.notes}
           placeholder={this.props.notesPlaceholder}
-          onChange={evt => {
-            this.setState({ notes: evt.target.value });
-          }}
+          onChange={e =>
+            this.props.onChange({ target: "notesEdit", value: e.target.value })
+          }
         />
         {this.props.children}
         <div>
@@ -66,8 +57,8 @@ export default class QuickAdd extends Component {
             small
             onClick={() =>
               this.props.onSubmit({
-                text: this.state.text,
-                notes: this.state.notes
+                text: this.props.text,
+                notes: this.props.notes
               })
             }
           >
@@ -76,11 +67,6 @@ export default class QuickAdd extends Component {
           <Button small onClick={this.props.onCancel}>
             취소
           </Button>
-          {this.props.onDelete != null && (
-            <Button small onClick={this.props.onDelete}>
-              삭제
-            </Button>
-          )}
         </div>
       </Box>
     );

@@ -1,10 +1,10 @@
 import React from "react";
-import { withRouter, Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import styled from "styled-components";
 import { Subscribe } from "unstated";
 import AuthContainer from "../containers/AuthContainer";
 import { firebaseAuth } from "../db";
-import Dropdown, { DropdownItem } from "./Dropdown/Dropdown";
+import Dropdown from "./Dropdown/Dropdown";
 
 const Nav = styled.nav`
   position: fixed;
@@ -21,14 +21,6 @@ const Nav = styled.nav`
   align-items: center;
 `;
 
-const Menu = styled.ul`
-  display: flex;
-  list-style: none;
-`;
-
-const MenuItem = styled.li`
-  margin-left: 15px;
-`;
 const Logo = styled.span`
   font-weight: 700;
   font-size: 1rem;
