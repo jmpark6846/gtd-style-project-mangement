@@ -158,6 +158,7 @@ class ProjectDetailPage extends Component {
         {getSortedByOrderProp(this.state.lists).map(list => (
           <List
             hideHeading={true}
+            onlyNotDone={true}
             key={list.id}
             projectId={this.state.id}
             listId={list.id}

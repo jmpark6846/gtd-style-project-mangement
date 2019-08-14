@@ -100,9 +100,12 @@ class List extends Component {
   };
 
   render() {
-    const todosNotDone = getSortedByOrderProp(this.state.todos).filter(
-      todo => !todo.done
-    );
+    let todosShown = getSortedByOrderProp(this.state.todos)
+    if (this.props.onlyNotDone) {
+      todosShown = todosShown.filter(
+        todo => !todo.done
+      );
+    }
 
     return (
       <Subscribe to={[AuthContainer]}>
@@ -118,7 +121,7 @@ class List extends Component {
               }
 
             {this.state.todos &&
-              todosNotDone.map(todo => (
+              todosShown.map(todo => (
                 <Todo
                   key={todo.id}
                   id={todo.id}
