@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
-export const Button = styled.button`
+export const Button = styled.button.attrs(props=>({margin:props.margin}))`
   display: ${props => (props.hidden ? "hidden" : "inline-block")};
+  margin: ${props=> (props.margin)};
   max-width: 100%;
   padding: 0.5em 1em;
   border: 1px solid #d9d9d9;

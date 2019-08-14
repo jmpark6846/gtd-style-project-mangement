@@ -11,13 +11,11 @@ import { Button, SubHeading } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import Todo from "./Todo";
 
-
 const ListPane = styled.div`
   margin-bottom: 20px;
 `;
 
 class List extends Component {
-  
   static propTypes = {
     projectId: PropTypes.string,
     listId: PropTypes.string,
@@ -51,13 +49,13 @@ class List extends Component {
     this.setState({ isAddShown: !this.state.isAddShown });
   };
 
-  _handleAddTodo = async ({ text, notes, username, userId }) => {
+  _handleAddTodo = async ({ text, notes, user }) => {
     const id = generateId();
     const newTodo = {
       id,
       text,
       notes,
-      user: { username, id: userId },
+      user: { id: user.id, username:user.username },
       done: false,
       order: this.state.length + 1
     };
@@ -74,22 +72,31 @@ class List extends Component {
     });
   };
 
-  _handleCheckTodo = async ({ id }) => {
-    let selectedTodo = {
-      ...this.state.todos[id],
-      done: !this.state.todos[id].done
-    };
+  _handleChangeTodo = async ({ todoId, text, notes }) => {
+    try {
+      await this.todosRef.child(todoId).update({ text, notes });
+    } catch (error) {
+      console.error("error change todo: " + error);
+    }
+  };
+
+  _handleCheckTodo = async ({ todoId }) => {
+    let selectedTodo = { ...this.state.todos[todoId] };
+    selectedTodo.done = !selectedTodo.done;
 
     try {
-      await this.todosRef.child(id).update({
-        done: selectedTodo.done,
-        checkedAt: selectedTodo.done ? Date.now() : null
-      });
+      await this.todosRef.child(todoId).update({ done: selectedTodo.done });
     } catch (error) {
       console.error("error check todo: " + error);
     }
+  };
 
-    this.setState({ todos: { ...this.state.todos, [id]: selectedTodo } });
+  _handleDeleteTodo = async ({ todoId }) => {
+    try {
+      await this.todosRef.child(todoId).set(null);
+    } catch (error) {
+      console.log("error delete todo: " + error);
+    }
   };
 
   render() {
@@ -101,41 +108,54 @@ class List extends Component {
       <Subscribe to={[AuthContainer]}>
         {auth => (
           <ListPane>
-            <div>
-              <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
-                <SubHeading>{this.props.heading}</SubHeading>
-              </Link>
-              <ContentEditable html={this.props.description} />
-            </div>
+            { this.props.hideHeading && 
+              <div>
+                <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
+                  <SubHeading>{this.props.heading}</SubHeading>
+                </Link>
+                <ContentEditable html={this.props.description} />
+              </div>
+              }
 
-            <div>
-              {todosNotDone.map(todo => (
+            {this.state.todos &&
+              todosNotDone.map(todo => (
                 <Todo
                   key={todo.id}
+                  id={todo.id}
                   user={todo.user}
                   text={todo.text}
                   done={todo.done}
+                  notes={todo.notes}
                   order={todo.order}
-                  onCheck={() => this._handleCheckTodo({ id: todo.id })}
+                  onCheck={() => {
+                    this._handleCheckTodo({ todoId: todo.id });
+                  }}
+                  onSubmit={data =>
+                    this._handleChangeTodo({ ...data, todoId: todo.id })
+                  }
+                  onDelete={() => this._handleDeleteTodo({ todoId: todo.id })}
                 />
               ))}
-            </div>
-
             <div>
               {this.state.isAddShown && (
-                <QuickAdd
-                  textPlaceholder="할 일 제목"
-                  notesPlaceholder="노트(선택)"
-                  onSubmit={({ text, notes }) =>
-                    this._handleAddTodo({
-                      text,
-                      notes,
-                      username: auth.state.username,
-                      userId: auth.state.id
-                    })
-                  }
-                  onCancel={this._handleCloseQuickAdd}
-                />
+                <Subscribe to={[AuthContainer]}>
+                  {auth => (
+                    <QuickAdd
+                      textPlaceholder="할 일 제목"
+                      notesPlaceholder="노트(선택)"
+                      onSubmit={data =>
+                        this._handleAddTodo({
+                          ...data,
+                          user: {
+                            id: auth.state.id,
+                            username: auth.state.username
+                          }
+                        })
+                      }
+                      onCancel={this._handleCloseQuickAdd}
+                    />
+                  )}
+                </Subscribe>
               )}
               {!this.state.isAddShown && (
                 <Button onClick={this._handleCloseQuickAdd} small>

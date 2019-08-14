@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Subscribe } from "unstated";
 import "./App.css";
 import Header from "./components/Header";
-import Project from "./components/Todo/Project";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 import AuthContainer from "./containers/AuthContainer";
 import ListDetailPage from "./pages/ListDetailPage";
 import ProjectListPage from "./pages/ProjectListPage";
@@ -40,7 +40,7 @@ class App extends React.Component {
                   <Route
                     exact
                     path="/projects/:projectId"
-                    render={() => <Project auth={auth} />}
+                    render={() => <ProjectDetailPage auth={auth} />}
                   />
                   <Route
                     path="/projects/:projectId/lists/:listId"

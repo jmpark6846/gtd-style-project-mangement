@@ -12,6 +12,7 @@ const DropdownMenuPane = styled(Box).attrs(props => ({ right: props.right }))`
   position: absolute;
   width: 150px;
   padding: 0;
+  font-size: 0.9rem;
   right: ${props => props.right};
   /* box-shadow: rgba(67, 90, 111, 0.3) 0px 0px 1px, rgba(67, 90, 111, 0.47) 0px 8px 10px -4px; */
 `;
@@ -30,7 +31,7 @@ export const DropdownItem = styled.div`
     border-bottom-right-radius:inherit;
   }
   :hover{
-    background-color:lightgray;
+    background-color:#fbfbfb;
   }
 `;
 

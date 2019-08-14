@@ -2,9 +2,15 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { Box, Input, Button } from "../common";
+import styled from 'styled-components'
+
+const ControlPane = styled.div`
+  display:flex;
+  margin-top: 0.8em;
+  justify-content: space-between;
+`
 
 let compositionend = true;
-
 export default class QuickAdd extends Component {
   static propTypes = {
     textPlaceholder: PropTypes.string,
@@ -15,13 +21,13 @@ export default class QuickAdd extends Component {
     notes: PropTypes.string
   };
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       text: props.text || "",
       notes: props.notes || ""
-    }
+    };
   }
-  
+
   _handleKeyDown = e => {
     if (e.key === "Enter") {
       if (!compositionend || this.state.text === "") {
@@ -34,7 +40,6 @@ export default class QuickAdd extends Component {
     }
   };
 
-  
   handleComposition = event => {
     compositionend = event.type === "compositionend";
   };
@@ -61,9 +66,11 @@ export default class QuickAdd extends Component {
           }}
         />
         {this.props.children}
-        <div>
+        <ControlPane>
+          <div>
           <Button
-            small
+              small
+              margin="0 7px 0 0"
             onClick={() =>
               this.props.onSubmit({
                 text: this.state.text,
@@ -76,12 +83,15 @@ export default class QuickAdd extends Component {
           <Button small onClick={this.props.onCancel}>
             취소
           </Button>
+          </div>
           {this.props.onDelete != null && (
-            <Button small onClick={this.props.onDelete}>
-              삭제
-            </Button>
+            <div>
+              <Button small onClick={this.props.onDelete}>
+                삭제
+              </Button>
+            </div>
           )}
-        </div>
+        </ControlPane>
       </Box>
     );
   }

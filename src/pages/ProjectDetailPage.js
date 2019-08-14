@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
-import { db, firebaseAuth } from "../../db";
-import { generateId, getSortedByOrderProp } from "../../utils";
-import { Button, DetailDescriptionPane, DetailHeadingPane, Heading } from "../common";
-import Dropdown from "../Dropdown/Dropdown";
-import QuickAdd from "../QuickAdd/QuickAdd";
-import List from "./List";
+import { db, firebaseAuth } from "../db";
+import { generateId, getSortedByOrderProp } from "../utils";
+import { Button, DetailDescriptionPane, DetailHeadingPane, Heading } from "../components/common";
+import Dropdown from "../components/Dropdown/Dropdown";
+import QuickAdd from "../components/QuickAdd/QuickAdd";
+import List from "../components/Todo/List";
 
 
-class Project extends Component {
+class ProjectDetailPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -157,6 +157,7 @@ class Project extends Component {
 
         {getSortedByOrderProp(this.state.lists).map(list => (
           <List
+            hideHeading={true}
             key={list.id}
             projectId={this.state.id}
             listId={list.id}
@@ -183,4 +184,4 @@ class Project extends Component {
   }
 }
 
-export default withRouter(Project);
+export default withRouter(ProjectDetailPage);
