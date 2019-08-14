@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
-import { Button, Checkbox } from "../common";
-import QuickEdit from "../QuickAdd/QuickEdit";
+import { Checkbox } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 
 const TodoPane = styled.div`
@@ -36,7 +35,7 @@ class Todo extends React.Component {
     this.props.onSubmit({ text, notes });
     this.setState({ editing: false });
   };
-  
+
   _handleDelete = () => {
     this.props.onDelete();
     this.setState({ editing: false });

@@ -44,7 +44,7 @@ class ListDetailPage extends Component {
 
     this.todosRef.on("value", data => {
       const todos = data.val() || {};
-      this.setState({ todos: todos, length: Object.keys(todos).length });
+      this.setState({ todos: todos, length: Object.keys(todos).length+1 });
     });
   }
 
@@ -52,6 +52,7 @@ class ListDetailPage extends Component {
     this.listRef.off("value");
     this.todosRef.off("value");
   }
+  
   _handleAddTodo = async ({ text, notes, user }) => {
     const id = generateId();
     const newTodo = {
@@ -68,10 +69,6 @@ class ListDetailPage extends Component {
     } catch (error) {
       console.error("error adding todo: " + error);
     }
-
-    this.setState({
-      length: newTodo.order
-    });
   };
 
   _handleUpdateList = async ({ text, notes }) => {
