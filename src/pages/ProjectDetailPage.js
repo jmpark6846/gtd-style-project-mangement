@@ -31,11 +31,15 @@ class ProjectDetailPage extends Component {
 
     const { projectId } = this.props.match.params;
     this.projectRef = db.collection("projects").doc(projectId);
-    this.listsRef = this.projectRef.collection('lists')
+    this.listsRef = db.collection("lists");
   }
 
   _handleUpdateProject = async ({ text, notes }) => {
-    const { projectId } = this.props.match.params
+    const { projectId } = this.props.match.params;
+    this.setState({
+      isEditShown: false
+    });
+
     try {
       await this.projectRef.update({
         name: text,
@@ -46,43 +50,72 @@ class ProjectDetailPage extends Component {
     }
 
     this.props.projectCon.update({
-        ...this.props.projectCon.state,
+      projects: {
+        ...this.props.projectCon.state.projects,
         [projectId]: {
-          ...this.props.projectCon.state[projectId],
-          name:text,
-          description: notes,
+          ...this.props.projectCon.state.projects[projectId],
+          name: text,
+          description: notes
         }
-    })
-
-    this.setState({
-      isEditShown: false
+      }
     });
   };
 
-  _handleDeleteProject = () => {
-    const { projectId } = this.props.match.params
-    const { lists } = this.props.projectCon.state.projects[projectId]
-    
-    // this.projectRef.delete();
-    
-    this.projectRef.set(null).catch(error => console.error(error));
-    this.listsRef.set(null).catch(error => console.error(error));
-    let projects = { ...this.props.auth.state.projects };
-    delete projects[this.state.id];
+  _handleDeleteProject = async () => {
+    const { projectId } = this.props.match.params;
+    try {
+      let authProjects = { ...this.props.authCon.state.projects };
+      delete authProjects[projectId];
+      await db
+        .collection("users")
+        .doc(this.props.authCon.state.id)
+        .update({ projects: authProjects });
+      this.props.authCon.setAuth({ projects: authProjects });
 
-    db.ref(`users/${this.props.auth.state.id}/projects`)
-      .set(projects)
-      .catch(error => console.error(error));
+      let projects = { ...this.props.projectCon.state.projects };
+      delete projects[projectId];
+      await db
+        .collection("projects")
+        .doc(projectId)
+        .delete();
+      this.props.projectCon.update({ projects });
 
-    this.props.auth.setAuth({ projects });
+      let lists = { ...this.props.projectCon.state.lists };
+      let deletedLists = { ...lists[projectId] };
+      let deletedlistIds = Object.keys(deletedLists);
+
+      deletedlistIds.forEach(
+        async listId =>
+          await db
+            .collection("lists")
+            .doc(listId)
+            .delete()
+      );
+      delete lists[projectId];
+      this.props.projectCon.update({ lists });
+
+      let todos = { ...this.props.projectCon.state.todos };
+
+      deletedlistIds.forEach(listId => {
+        let deletedTodos = { ...todos[listId] };
+        Object.keys(deletedTodos).forEach(
+          async todoId =>
+            await db
+              .collection("todo")
+              .doc(todoId)
+              .delete()
+        );
+        delete todos[listId];
+      });
+      this.props.projectCon.update({ todos });
+    } catch (error) {
+      console.error("error deleting board: " + error);
+    }
     this.props.history.push("/projects");
   };
 
-
   _handleAddList = async ({ text, notes }) => {
     const { projectId } = this.props.match.params;
-    const project = this.props.projectCon.state[projectId];
-    
     const listId = generateId();
     const newList = {
       id: listId,
@@ -93,26 +126,28 @@ class ProjectDetailPage extends Component {
     };
 
     try {
-      await this.listsRef.doc(listId).set({
-        ...newList,
-        projectId,
-        createdAt: Date.now()
-      });
+      await db
+        .collection("lists")
+        .doc(listId)
+        .set({
+          ...newList,
+          projectId,
+          createdAt: Date.now()
+        });
     } catch (error) {
       console.error("error adding list: " + error);
     }
 
     this.props.projectCon.update({
-      [projectId]: {
-        ...project,
-        lists: {
-          ...project.lists,
+      lists: {
+        ...this.props.projectCon.state.lists,
+        [projectId]: {
+          ...this.props.projectCon.state.lists[projectId],
           [listId]: newList
         }
       }
-      
     });
-    
+
     this.setState({
       isAddShown: false
     });
@@ -145,7 +180,7 @@ class ProjectDetailPage extends Component {
   render() {
     const { projectId } = this.props.match.params;
     const project = this.props.projectCon.state.projects[projectId];
-    
+    const projectLists = this.props.projectCon.state.lists[projectId];
     return this.props.projectCon.state.isLoading ? (
       <div>loading</div>
     ) : (
@@ -186,7 +221,7 @@ class ProjectDetailPage extends Component {
             </DetailDescriptionPane>
           </React.Fragment>
         )}
-        {getSortedByOrderProp(project.lists).map(list => (
+        {getSortedByOrderProp(projectLists || {}).map(list => (
           <List
             key={list.id}
             hideHeading={true}

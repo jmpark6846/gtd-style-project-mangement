@@ -40,6 +40,7 @@ class App extends React.Component {
 
         if (user) {
           let projectIds = Object.keys(user.projects || {});
+          let projects = {};
           await Promise.all(
             projectIds.map(projectId =>
               this.projectsRef
@@ -47,17 +48,7 @@ class App extends React.Component {
                 .get()
                 .then(projectDoc => {
                   if (projectDoc.exists) {
-                    projectCon.update({
-                      projects:{
-                        ...projectCon.state.projects,
-                        [projectId]: projectDoc.data()
-                      }
-                    });
-                    // let lists = db.collectionGroup('lists').where("projectId","==",projectId).get().then(snapshot => (
-                    //   snapshot.forEach(doc => {
-                    //     console.log(doc.data())
-                    //   })
-                    // ))
+                    projects[projectDoc.id] = projectDoc.data();
                   }
                 })
                 .catch(error => {
@@ -66,27 +57,27 @@ class App extends React.Component {
             )
           );
 
+          let lists = {};
+          let listIds = []
           await Promise.all(
             projectIds.map(projectId =>
-              this.projectsRef
-                .doc(projectId)
+              db
                 .collection("lists")
+                .where("projectId", "==", projectId)
                 .get()
-                .then(listSnapshot => {
-                  if (!listSnapshot.empty) {
-                    let _lists = {};
-                    listSnapshot.forEach(
-                      doc => (_lists[doc.data().id] = doc.data())
-                    );
-                    projectCon.update({
-                      projects: {
-                        ...projectCon.state.projects,
-                        [projectId]: {
-                          ...projectCon.state.projects[projectId],
-                          lists: _lists
+                .then(listsSnapshot => {
+                  if (!listsSnapshot.empty) {
+                    listsSnapshot.forEach(
+                      doc => {
+                        const list = doc.data()
+                        lists[projectId] = {
+                          ...lists[projectId],
+                          [list.id]: list
                         }
+                        listIds.push(list.id)
                       }
-                    });
+                        
+                    );
                   }
                 })
                 .catch(error => {
@@ -94,8 +85,37 @@ class App extends React.Component {
                 })
             )
           );
-
-          this.props.projectCon.update({ isLoading: false });
+          let todos = {};
+          await Promise.all(
+            listIds.map(listId =>
+              db.collection("todos")
+                .where("listId","==",listId)
+                .get()
+                .then(todosSnapshot => {
+                  if (!todosSnapshot.empty) {
+                    todosSnapshot.forEach(
+                      doc => {
+                        const todo = doc.data()
+                        todos[listId] = {
+                          ...todos[listId],
+                          [todo.id]: todo
+                        }
+                      }
+                        
+                    );
+                  }
+                })
+                .catch(error => {
+                  console.error("error gettings list data: " + error);
+                })
+            )
+          );
+          projectCon.update({
+            projects,
+            lists,
+            todos,
+            isLoading: false
+          });
         }
       }
     });

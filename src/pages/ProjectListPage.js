@@ -38,7 +38,6 @@ class ProjectListPage extends React.Component {
         name: this.state.name,
         createdAt: Date.now(),
         description: "",
-        lists: {}
       };
 
       await this.projectsRef.doc(projectId).set(newProject);

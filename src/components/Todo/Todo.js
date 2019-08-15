@@ -42,7 +42,7 @@ class Todo extends React.Component {
   };
 
   render() {
-    const { user, done, text, notes, onCheck } = this.props;
+    const { userId, done, text, notes, onCheck } = this.props;
     return this.state.editing ? (
       <QuickAdd
         text={text}
@@ -74,7 +74,7 @@ class Todo extends React.Component {
           onChange={onCheck}
         />
         <TodoText>{text}</TodoText>
-        <AuthorLabel>{user.username}</AuthorLabel>
+        <AuthorLabel>{userId}</AuthorLabel>
       </TodoPane>
     );
   }
