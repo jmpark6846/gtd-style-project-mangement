@@ -9,7 +9,8 @@ import AuthContainer from "./containers/AuthContainer";
 import ListDetailPage from "./pages/ListDetailPage";
 import ProjectListPage from "./pages/ProjectListPage";
 import SignInPage from "./pages/SignInPage";
-
+import ProjectContainer from "./containers/ProjectContainer";
+import { db, firebaseAuth } from "./db";
 
 const Body = styled.section`
   /* position: absolute; */
@@ -18,21 +19,83 @@ const Body = styled.section`
 `;
 
 class App extends React.Component {
+  userRef = db.collection("user");
+  projectRef = db.collection("projects");
+  listRef = db.collection("lists");
+
+  componentDidMount = () => {
+    const { authCon, projectCon } = this.props;
+    // 인증 정보
+    firebaseAuth.onAuthStateChanged(async googleAuth => {
+      if (googleAuth !== null) {
+        let user = null;
+
+        try {
+          let userDoc = await this.userRef.doc(googleAuth.uid).get();
+          if (userDoc.exists) {
+            user = userDoc.data();
+            authCon.setAuth(user);
+          }
+        } catch (error) {
+          console.log("error getting user: " + error);
+        }
+
+        if (user) {
+          let projectIds = Object.keys(user.projects || {});
+          Promise.all(
+            projectIds.map(projectId =>
+              this.projectRef
+                .doc(projectId)
+                .get()
+                .then(projectSnapshot => {
+                  projectCon.update({
+                    projects: {
+                      ...projectCon.state.projects,
+                      [projectId]: projectSnapshot.val()
+                    }
+                  });
+                })
+                .catch(error => {
+                  console.error("error gettings project data: " + error);
+                })
+            )
+          );
+        }
+
+        // projectIds.map(projectId =>
+        //   this.listRef.child(projectId).on("value", listSnapshot => {
+        //     projectCon.update({
+        //       lists: {
+        //         ...projectCon.state.lists,
+        //         [projectId]: listSnapshot.val()
+        //       }
+        //     });
+        //   })
+        // );
+      }
+    });
+  };
+  componentWillMount = () => {
+    // let projectIds = Object.keys(this.props.authCon.state.projects || {});
+    // projectIds.map(projectId => this.projectRef.child(projectId).off("value"));
+  };
   render() {
+    console.log(this.props.authCon);
+    console.log(this.props.projectCon);
     return (
       <div className="App">
         <Router>
           <Header />
           <Body>
-            <Subscribe to={[AuthContainer]}>
-              {auth => (
+            <Subscribe to={[AuthContainer, ProjectContainer]}>
+              {(auth, project) => (
                 <React.Fragment>
                   <Route
                     exact
                     path="/"
                     render={() => <SignInPage auth={auth} />}
                   />
-                  <Route
+                  {/* <Route
                     exact
                     path="/projects"
                     render={() => <ProjectListPage auth={auth} />}
@@ -45,7 +108,7 @@ class App extends React.Component {
                   <Route
                     path="/projects/:projectId/lists/:listId"
                     component={ListDetailPage}
-                  />
+                  /> */}
                 </React.Fragment>
               )}
             </Subscribe>

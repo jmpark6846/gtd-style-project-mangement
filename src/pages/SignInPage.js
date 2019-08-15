@@ -47,6 +47,7 @@ class SignInPage extends React.Component {
     await firebaseAuth.signInWithRedirect(provider);
   };
   render() {
+    console.log(this.props.auth)
     return (
       <div>
         <Button onClick={this._handleSignIn}>Sign in with Google</Button>

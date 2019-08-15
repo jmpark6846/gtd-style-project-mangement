@@ -5,16 +5,18 @@ export default class AuthContainer extends Container {
     id: "",
     email: "",
     username: "",
-    projects: {}
+    projects: {},
   };
 
-  setAuth = auth => this.setState(auth);
+  setAuth = newAuth => this.setState(newAuth);
 
   signOut = async () => {
     await this.setState({
       id: "",
       email: "",
-      username: ""
+      username: "",
+      projects: {},
+      path: [],
     });
   };
 }

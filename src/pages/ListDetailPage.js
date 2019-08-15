@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
-import { DetailDescriptionPane, DetailHeadingPane, Heading } from "../components/common";
+import {
+  DetailDescriptionPane,
+  DetailHeadingPane,
+  Heading
+} from "../components/common";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
 import List from "../components/Todo/List";
 import { db } from "../db";
+import Breadcumb from "../components/Breadcumb/Breadcumb";
 
 class ListDetailPage extends Component {
   // static propTypes = {
@@ -22,12 +27,19 @@ class ListDetailPage extends Component {
       lists: {},
       length: 0,
       isAddShown: false,
-      isEditShown: false
+      isEditShown: false,
+      projectId: "",
+      projectName: ""
     };
+    this.projectRef = db.ref(`projects/${projectId}`);
     this.listRef = db.ref(`lists/${projectId}/${listId}`);
   }
 
   componentDidMount() {
+    this.projectRef.once("value", data => {
+      const { name } = data.val();
+      this.setState({ projectName: name });
+    });
     this.listRef.on("value", data => {
       this.setState(data.val() || {});
     });
@@ -71,6 +83,13 @@ class ListDetailPage extends Component {
   render() {
     return (
       <div>
+        <Breadcumb
+          projectId={this.state.projectId}
+          projectName={this.state.projectName}
+          listId={this.state.id}
+          listHeading={this.state.heading}
+        />
+
         {this.state.isEditShown && (
           <QuickAdd
             textPlaceholder="프로젝트 이름"

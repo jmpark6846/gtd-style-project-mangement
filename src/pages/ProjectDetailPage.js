@@ -15,6 +15,7 @@ import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
 import List from "../components/Todo/List";
 import Dialog from "../components/Dialog/Dialog";
+import Breadcumb from "../components/Breadcumb/Breadcumb";
 
 class ProjectDetailPage extends Component {
   constructor(props) {
@@ -50,6 +51,7 @@ class ProjectDetailPage extends Component {
     this.projectRef.on("value", data => {
       this.setState(data.val() || {});
     });
+
     this.listRef.on("value", data => {
       const lists = data.val() || {};
       this.setState({ lists, length: Object.keys(lists).length });
@@ -74,7 +76,7 @@ class ProjectDetailPage extends Component {
     try {
       await db.ref(`lists/${this.state.id}/${id}`).set({
         ...newList,
-        projects: this.state.id,
+        projectId: this.state.id,
         createdAt: Date.now()
       });
     } catch (error) {
@@ -93,7 +95,7 @@ class ProjectDetailPage extends Component {
 
   _handleUpdateProject = async ({ text, notes }) => {
     try {
-      await this.teamRef.update({
+      await this.projectRef.update({
         name: text,
         description: notes
       });
@@ -146,8 +148,10 @@ class ProjectDetailPage extends Component {
   }, 500);
 
   render() {
+    console.log(this.props.auth.state);
     return (
       <div>
+        <Breadcumb projectId={this.state.id} projectName={this.state.name} />
         {this.state.isEditShown && (
           <QuickAdd
             textPlaceholder="프로젝트 이름"
@@ -183,7 +187,6 @@ class ProjectDetailPage extends Component {
             </DetailDescriptionPane>
           </React.Fragment>
         )}
-
         {getSortedByOrderProp(this.state.lists).map(list => (
           <List
             hideHeading={true}
