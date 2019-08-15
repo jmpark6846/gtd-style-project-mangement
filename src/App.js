@@ -47,13 +47,15 @@ class App extends React.Component {
               this.projectsRef
                 .doc(projectId)
                 .get()
-                .then(projectSnapshot => {
-                  projectCon.update({
-                    projects: {
-                      ...projectCon.state.projects,
-                      [projectId]: projectSnapshot.val()
-                    }
-                  });
+                .then(projectDoc => {
+                  if (projectDoc.exists) {
+                    projectCon.update({
+                      projects: {
+                        ...projectCon.state.projects,
+                        [projectId]: projectDoc.data()
+                      }
+                    });
+                  }
                 })
                 .catch(error => {
                   console.error("error gettings project data: " + error);
@@ -98,7 +100,7 @@ class App extends React.Component {
                   <Route
                     exact
                     path="/projects"
-                    render={() => <ProjectListPage auth={auth} />}
+                    render={() => <ProjectListPage authCon={this.props.authCon} projectCon={this.props.projectCon} />}
                   />
                   {/* <Route
                     exact

@@ -1,7 +1,13 @@
 import React from "react";
 import { Link, withRouter } from "react-router-dom";
 import styled from "styled-components";
-import { Box, Button, Heading, InputUnderline, SubHeading } from "../components/common";
+import {
+  Box,
+  Button,
+  Heading,
+  InputUnderline,
+  SubHeading
+} from "../components/common";
 import SlideContainer, { Slide } from "../components/Slide/SlideContainer";
 import { db, firebaseAuth } from "../db";
 import { generateId } from "../utils";
@@ -16,88 +22,61 @@ class ProjectListPage extends React.Component {
   state = {
     name: "",
     teammate: "",
-    projects: {},
     isSlideShown: false,
     currentSlide: 0,
     slideCount: 2
   };
-
-  async componentDidMount() {
-      firebaseAuth.onAuthStateChanged(googleAuth => {
-        if (googleAuth !== null) {
-          let user = null;
-          db.ref("users")
-            .child(googleAuth.uid)
-            .on("value", data => {
-              user = data.val();
-              this.props.auth.setAuth(user);
-
-            let projectIds = Object.keys(user.projects || {});
-            Promise.all(
-              projectIds.map(id =>
-                db
-                  .ref("projects")
-                  .child(id)
-                  .once("value")
-                  .then(snapshot => snapshot.val())
-              )
-            ).then(result => {
-              let _result = {};
-              result.forEach(project => (_result[project.id] = project));
-              this.setState({ projects: _result });
-            });
-          });
-      }
-    });
-  }
-
-  componentWillMount() {
-    if (this.props.auth.state.id) {
-      db.ref("users")
-        .child(this.props.auth.state.id)
-        .off("value");
-    }
-    firebaseAuth.onAuthStateChanged(() => {});
-  }
-
+  projectsRef = db.collection("projects");
+  
   _handleAddProject = async () => {
     try {
-      const id = generateId();
-      const { username, id: userId } = this.props.auth.state;
+      const projectId = generateId();
+      const userId = this.props.authCon.state.id;
       const newProject = {
-        id,
+        id: projectId,
+        userId,
         name: this.state.name,
-        user: { username, id: userId },
         createdAt: Date.now(),
         description: "",
         lists: {}
       };
-      await db.ref("projects/" + id).set(newProject);
 
+      await this.projectsRef.doc(projectId).set(newProject);
+      this.props.projectCon.update({
+        projects: { 
+          ...this.props.projectCon.state.projects,
+          [projectId]: newProject
+        }
+      })
+
+      const authProjectList = {
+        ...this.props.authCon.state.projects,
+        [projectId]: true
+      };
       await db
-        .ref("users")
-        .child(this.props.auth.state.id)
+        .collection("users")
+        .doc(userId)
         .update({
-          projects: { ...this.props.auth.state.projects, [id]: true }
+          projects: authProjectList
         });
 
-      this.props.auth.setAuth({
-        projects: { ...this.props.auth.state.projects, [id]: true }
+      this.props.authCon.setAuth({
+        projects: authProjectList
       });
+
       this.setState({
         isSlideShown: false,
         currentSlide: 0,
         name: "",
         teammate: "",
-        projects: { ...this.state.projects, [id]: newProject }
       });
     } catch (error) {
-      console.error("error submit: " + error);
+      console.error("error adding project: " + error);
     }
   };
 
   _sortByCreatedAt = () => {
-    return Object.values(this.state.projects).sort(
+    return Object.values(this.props.projectCon.state.projects).sort(
       (a, b) => a.createdAt - b.createdAt
     );
   };
@@ -114,7 +93,7 @@ class ProjectListPage extends React.Component {
         <Button onClick={() => this.setState({ isSlideShown: true })}>
           프로젝트 만들기
         </Button>
-        
+
         <SlideContainer
           current={this.state.currentSlide}
           width="500px"
