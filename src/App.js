@@ -4,13 +4,12 @@ import styled from "styled-components";
 import { Subscribe } from "unstated";
 import "./App.css";
 import Header from "./components/Header";
-import ProjectDetailPage from "./pages/ProjectDetailPage";
 import AuthContainer from "./containers/AuthContainer";
-import ListDetailPage from "./pages/ListDetailPage";
-import ProjectListPage from "./pages/ProjectListPage";
-import SignInPage from "./pages/SignInPage";
 import ProjectContainer from "./containers/ProjectContainer";
 import { db, firebaseAuth } from "./db";
+import ProjectListPage from "./pages/ProjectListPage";
+import SignInPage from "./pages/SignInPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 
 const Body = styled.section`
   /* position: absolute; */
@@ -21,7 +20,6 @@ const Body = styled.section`
 class App extends React.Component {
   usersRef = db.collection("users");
   projectsRef = db.collection("projects");
-  listsRef = db.collection("lists");
 
   componentDidMount = () => {
     const { authCon, projectCon } = this.props;
@@ -42,7 +40,7 @@ class App extends React.Component {
 
         if (user) {
           let projectIds = Object.keys(user.projects || {});
-          Promise.all(
+          await Promise.all(
             projectIds.map(projectId =>
               this.projectsRef
                 .doc(projectId)
@@ -50,11 +48,16 @@ class App extends React.Component {
                 .then(projectDoc => {
                   if (projectDoc.exists) {
                     projectCon.update({
-                      projects: {
+                      projects:{
                         ...projectCon.state.projects,
                         [projectId]: projectDoc.data()
                       }
                     });
+                    // let lists = db.collectionGroup('lists').where("projectId","==",projectId).get().then(snapshot => (
+                    //   snapshot.forEach(doc => {
+                    //     console.log(doc.data())
+                    //   })
+                    // ))
                   }
                 })
                 .catch(error => {
@@ -62,25 +65,42 @@ class App extends React.Component {
                 })
             )
           );
-        }
 
-        // projectIds.map(projectId =>
-        //   this.listRef.child(projectId).on("value", listSnapshot => {
-        //     projectCon.update({
-        //       lists: {
-        //         ...projectCon.state.lists,
-        //         [projectId]: listSnapshot.val()
-        //       }
-        //     });
-        //   })
-        // );
+          await Promise.all(
+            projectIds.map(projectId =>
+              this.projectsRef
+                .doc(projectId)
+                .collection("lists")
+                .get()
+                .then(listSnapshot => {
+                  if (!listSnapshot.empty) {
+                    let _lists = {};
+                    listSnapshot.forEach(
+                      doc => (_lists[doc.data().id] = doc.data())
+                    );
+                    projectCon.update({
+                      projects: {
+                        ...projectCon.state.projects,
+                        [projectId]: {
+                          ...projectCon.state.projects[projectId],
+                          lists: _lists
+                        }
+                      }
+                    });
+                  }
+                })
+                .catch(error => {
+                  console.error("error gettings list data: " + error);
+                })
+            )
+          );
+
+          this.props.projectCon.update({ isLoading: false });
+        }
       }
     });
   };
-  componentWillMount = () => {
-    // let projectIds = Object.keys(this.props.authCon.state.projects || {});
-    // projectIds.map(projectId => this.projectRef.child(projectId).off("value"));
-  };
+
   render() {
     console.log(this.props.authCon);
     console.log(this.props.projectCon);
@@ -100,14 +120,24 @@ class App extends React.Component {
                   <Route
                     exact
                     path="/projects"
-                    render={() => <ProjectListPage authCon={this.props.authCon} projectCon={this.props.projectCon} />}
-                  />
-                  {/* <Route
-                    exact
-                    path="/projects/:projectId"
-                    render={() => <ProjectDetailPage auth={auth} />}
+                    render={() => (
+                      <ProjectListPage
+                        authCon={this.props.authCon}
+                        projectCon={this.props.projectCon}
+                      />
+                    )}
                   />
                   <Route
+                    exact
+                    path="/projects/:projectId"
+                    render={() => (
+                      <ProjectDetailPage
+                        authCon={this.props.authCon}
+                        projectCon={this.props.projectCon}
+                      />
+                    )}
+                  />
+                  {/* <Route
                     path="/projects/:projectId/lists/:listId"
                     component={ListDetailPage}
                   /> */}

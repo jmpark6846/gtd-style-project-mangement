@@ -27,22 +27,9 @@ class List extends Component {
     super(props);
     this.state = {
       isAddShown: false,
-      length: 0,
-      todos: {}
     };
-    this.listRef = db.ref(`lists/${props.projectId}/${props.listId}`);
-    this.todosRef = db.ref(`todos/${props.listId}`);
-  }
-
-  componentDidMount() {
-    this.todosRef.on("value", data => {
-      const todos = data.val() || {};
-      this.setState({ todos: todos, length: Object.keys(todos).length });
-    });
-  }
-
-  componentWillUnmount() {
-    this.todosRef.off("value");
+    this.listRef = db.collection('projects').doc(props.projectId).collection('lists').doc(props.listId);
+    this.todosRef = this.listRef.collection('todos')
   }
 
   _handleCloseQuickAdd = () => {

@@ -20,80 +20,22 @@ import Breadcumb from "../components/Breadcumb/Breadcumb";
 class ProjectDetailPage extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      id: this.props.match.params.projectId || "",
-      name: "",
-      description: "",
-      lists: {},
       length: 0,
       teammate: "",
       isAddShown: false,
       isEditShown: false,
       isAddTeammateOpen: false
     };
-    this.projectRef = db.ref(`projects/${this.state.id}`);
-    this.listRef = db.ref(`lists/${this.state.id}`);
+
+    const { projectId } = this.props.match.params;
+    this.projectRef = db.collection("projects").doc(projectId);
+    this.listsRef = this.projectRef.collection('lists')
   }
-
-  componentDidMount() {
-    firebaseAuth.onAuthStateChanged(googleAuth => {
-      if (googleAuth !== null) {
-        let user = null;
-        db.ref("users")
-          .child(googleAuth.uid)
-          .on("value", data => {
-            user = data.val();
-            this.props.auth.setAuth(user);
-          });
-      }
-    });
-
-    this.projectRef.on("value", data => {
-      this.setState(data.val() || {});
-    });
-
-    this.listRef.on("value", data => {
-      const lists = data.val() || {};
-      this.setState({ lists, length: Object.keys(lists).length });
-    });
-  }
-
-  componentWillUnmount() {
-    this.projectRef.off("value");
-    this.listRef.off("value");
-  }
-
-  _handleAddList = async ({ text, notes }) => {
-    const id = generateId();
-    const { username, id: userId } = this.props.auth.state;
-    const newList = {
-      id,
-      heading: text,
-      user: { username, id: userId },
-      description: notes,
-      order: this.state.length + 1
-    };
-    try {
-      await db.ref(`lists/${this.state.id}/${id}`).set({
-        ...newList,
-        projectId: this.state.id,
-        createdAt: Date.now()
-      });
-    } catch (error) {
-      console.error("error _handleAddList: " + error);
-    }
-
-    this.setState({
-      lists: {
-        ...this.state.lists,
-        [id]: newList
-      },
-      length: newList.order,
-      isAddShown: false
-    });
-  };
 
   _handleUpdateProject = async ({ text, notes }) => {
+    const { projectId } = this.props.match.params
     try {
       await this.projectRef.update({
         name: text,
@@ -102,16 +44,29 @@ class ProjectDetailPage extends Component {
     } catch (error) {
       console.log("error updating project: " + error);
     }
+
+    this.props.projectCon.update({
+        ...this.props.projectCon.state,
+        [projectId]: {
+          ...this.props.projectCon.state[projectId],
+          name:text,
+          description: notes,
+        }
+    })
+
     this.setState({
-      name: text,
-      description: notes,
       isEditShown: false
     });
   };
 
   _handleDeleteProject = () => {
+    const { projectId } = this.props.match.params
+    const { lists } = this.props.projectCon.state.projects[projectId]
+    
+    // this.projectRef.delete();
+    
     this.projectRef.set(null).catch(error => console.error(error));
-    this.listRef.set(null).catch(error => console.error(error));
+    this.listsRef.set(null).catch(error => console.error(error));
     let projects = { ...this.props.auth.state.projects };
     delete projects[this.state.id];
 
@@ -121,6 +76,46 @@ class ProjectDetailPage extends Component {
 
     this.props.auth.setAuth({ projects });
     this.props.history.push("/projects");
+  };
+
+
+  _handleAddList = async ({ text, notes }) => {
+    const { projectId } = this.props.match.params;
+    const project = this.props.projectCon.state[projectId];
+    
+    const listId = generateId();
+    const newList = {
+      id: listId,
+      userId: this.props.authCon.state.id,
+      heading: text,
+      description: notes,
+      order: this.state.length + 1
+    };
+
+    try {
+      await this.listsRef.doc(listId).set({
+        ...newList,
+        projectId,
+        createdAt: Date.now()
+      });
+    } catch (error) {
+      console.error("error adding list: " + error);
+    }
+
+    this.props.projectCon.update({
+      [projectId]: {
+        ...project,
+        lists: {
+          ...project.lists,
+          [listId]: newList
+        }
+      }
+      
+    });
+    
+    this.setState({
+      isAddShown: false
+    });
   };
 
   _handleToggleQuickAdd = type => {
@@ -148,16 +143,20 @@ class ProjectDetailPage extends Component {
   }, 500);
 
   render() {
-    console.log(this.props.auth.state);
-    return (
+    const { projectId } = this.props.match.params;
+    const project = this.props.projectCon.state.projects[projectId];
+    
+    return this.props.projectCon.state.isLoading ? (
+      <div>loading</div>
+    ) : (
       <div>
-        <Breadcumb projectId={this.state.id} projectName={this.state.name} />
+        {/* <Breadcumb /> */}
         {this.state.isEditShown && (
           <QuickAdd
             textPlaceholder="프로젝트 이름"
             notesPlaceholder="설명(선택)"
-            text={this.state.name}
-            notes={this.state.description}
+            text={project.name}
+            notes={project.description}
             onSubmit={this._handleUpdateProject}
             onCancel={() => this._handleToggleQuickAdd("edit")}
           />
@@ -165,7 +164,7 @@ class ProjectDetailPage extends Component {
         {!this.state.isEditShown && (
           <React.Fragment>
             <DetailHeadingPane>
-              <Heading>{this.state.name}</Heading>
+              <Heading>{project.name}</Heading>
               <Dropdown>
                 <Dropdown.Item
                   onClick={() => this._handleToggleQuickAdd("edit")}
@@ -183,16 +182,16 @@ class ProjectDetailPage extends Component {
               </Dropdown>
             </DetailHeadingPane>
             <DetailDescriptionPane>
-              <ContentEditable html={this.state.description} />
+              <ContentEditable html={project.description} />
             </DetailDescriptionPane>
           </React.Fragment>
         )}
-        {getSortedByOrderProp(this.state.lists).map(list => (
+        {getSortedByOrderProp(project.lists).map(list => (
           <List
+            key={list.id}
             hideHeading={true}
             onlyNotDone={true}
-            key={list.id}
-            projectId={this.state.id}
+            projectId={projectId}
             listId={list.id}
             heading={list.heading}
             description={list.description}
