@@ -19,9 +19,9 @@ const Body = styled.section`
 `;
 
 class App extends React.Component {
-  userRef = db.collection("user");
-  projectRef = db.collection("projects");
-  listRef = db.collection("lists");
+  usersRef = db.collection("users");
+  projectsRef = db.collection("projects");
+  listsRef = db.collection("lists");
 
   componentDidMount = () => {
     const { authCon, projectCon } = this.props;
@@ -31,10 +31,10 @@ class App extends React.Component {
         let user = null;
 
         try {
-          let userDoc = await this.userRef.doc(googleAuth.uid).get();
+          let userDoc = await this.usersRef.doc(googleAuth.uid).get();
           if (userDoc.exists) {
             user = userDoc.data();
-            authCon.setAuth(user);
+            authCon.setAuth({ ...user, isLoggedIn: true });
           }
         } catch (error) {
           console.log("error getting user: " + error);
@@ -44,7 +44,7 @@ class App extends React.Component {
           let projectIds = Object.keys(user.projects || {});
           Promise.all(
             projectIds.map(projectId =>
-              this.projectRef
+              this.projectsRef
                 .doc(projectId)
                 .get()
                 .then(projectSnapshot => {
@@ -93,14 +93,14 @@ class App extends React.Component {
                   <Route
                     exact
                     path="/"
-                    render={() => <SignInPage auth={auth} />}
+                    render={() => <SignInPage authCon={this.props.authCon} />}
                   />
-                  {/* <Route
+                  <Route
                     exact
                     path="/projects"
                     render={() => <ProjectListPage auth={auth} />}
                   />
-                  <Route
+                  {/* <Route
                     exact
                     path="/projects/:projectId"
                     render={() => <ProjectDetailPage auth={auth} />}

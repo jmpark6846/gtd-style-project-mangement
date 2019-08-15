@@ -6,8 +6,10 @@ export default class AuthContainer extends Container {
     email: "",
     username: "",
     projects: {},
+    isLoggedIn: false,
   };
 
+  
   setAuth = newAuth => this.setState(newAuth);
 
   signOut = async () => {
