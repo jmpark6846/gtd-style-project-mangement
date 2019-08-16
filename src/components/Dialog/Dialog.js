@@ -22,7 +22,7 @@ const DialogBox = styled(Box)`
   border-width:0;
   width: 560px;
   max-width: calc(100% - 70px);
-`
+`;
 
 export default class Dialog extends Component {
   static propTypes = {

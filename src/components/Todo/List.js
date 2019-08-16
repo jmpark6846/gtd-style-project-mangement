@@ -5,12 +5,12 @@ import { Link, withRouter } from "react-router-dom";
 import styled from "styled-components";
 import { Subscribe } from "unstated";
 import AuthContainer from "../../containers/AuthContainer";
+import ProjectContainer from "../../containers/ProjectContainer";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
 import { Button, SubHeading } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import Todo from "./Todo";
-import ProjectContainer from "../../containers/ProjectContainer";
 
 const ListPane = styled.div`
   margin-bottom: 20px;

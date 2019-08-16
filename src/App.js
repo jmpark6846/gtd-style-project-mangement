@@ -1,16 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import styled from "styled-components";
-import { Subscribe } from "unstated";
 import "./App.css";
 import Header from "./components/Header";
-import AuthContainer from "./containers/AuthContainer";
-import ProjectContainer from "./containers/ProjectContainer";
 import { db, firebaseAuth } from "./db";
+import ListDetailPage from "./pages/ListDetailPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 import ProjectListPage from "./pages/ProjectListPage";
 import SignInPage from "./pages/SignInPage";
-import ProjectDetailPage from "./pages/ProjectDetailPage";
-import ListDetailPage from "./pages/ListDetailPage";
 
 const Body = styled.section`
   /* position: absolute; */

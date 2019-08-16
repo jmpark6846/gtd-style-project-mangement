@@ -1,20 +1,14 @@
+import { debounce } from "lodash";
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
-import { debounce } from "lodash";
 import { withRouter } from "react-router-dom";
-import { db, firebaseAuth } from "../db";
-import { generateId, getSortedByOrderProp } from "../utils";
-import {
-  Button,
-  DetailDescriptionPane,
-  DetailHeadingPane,
-  Heading,
-  Input
-} from "../components/common";
+import { Button, DetailDescriptionPane, DetailHeadingPane, Heading, Input } from "../components/common";
+import Dialog from "../components/Dialog/Dialog";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
 import List from "../components/Todo/List";
-import Dialog from "../components/Dialog/Dialog";
+import { db } from "../db";
+import { generateId, getSortedByOrderProp } from "../utils";
 import Breadcumb from "../components/Breadcumb/Breadcumb";
 
 class ProjectDetailPage extends Component {
@@ -185,7 +179,7 @@ class ProjectDetailPage extends Component {
       <div>loading</div>
     ) : (
       <div>
-        {/* <Breadcumb /> */}
+          <Breadcumb projectId={projectId}/>
         {this.state.isEditShown && (
           <QuickAdd
             textPlaceholder="프로젝트 이름"
@@ -217,7 +211,7 @@ class ProjectDetailPage extends Component {
               </Dropdown>
             </DetailHeadingPane>
             <DetailDescriptionPane>
-              <ContentEditable html={project.description} disabled={true}/>
+              <ContentEditable html={project.description} disabled={true} />
             </DetailDescriptionPane>
           </React.Fragment>
         )}

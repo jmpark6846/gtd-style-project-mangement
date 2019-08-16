@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
-import {
-  DetailDescriptionPane,
-  DetailHeadingPane,
-  Heading
-} from "../components/common";
+import { DetailDescriptionPane, DetailHeadingPane, Heading } from "../components/common";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
 import List from "../components/Todo/List";
@@ -114,12 +110,10 @@ class ListDetailPage extends Component {
       <div>loading</div>
     ) : (
       <div>
-        {/* <Breadcumb
-          projectId={this.state.projectId}
-          projectName={this.state.projectName}
-          listId={this.state.id}
-          listHeading={this.state.heading}
-        /> */}
+        <Breadcumb
+          projectId={projectId}
+          listId={listId}
+        />
 
         {this.state.isEditShown && (
           <QuickAdd
