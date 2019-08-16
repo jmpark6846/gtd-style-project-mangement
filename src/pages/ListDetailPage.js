@@ -13,9 +13,6 @@ import { db } from "../db";
 import Breadcumb from "../components/Breadcumb/Breadcumb";
 
 class ListDetailPage extends Component {
-  // static propTypes = {
-  //   prop: PropTypes
-  // }
   constructor(props) {
     super(props);
     const { projectId, listId } = this.props.match.params;
@@ -31,25 +28,16 @@ class ListDetailPage extends Component {
       projectId: "",
       projectName: ""
     };
-    this.projectRef = db.ref(`projects/${projectId}`);
-    this.listRef = db.ref(`lists/${projectId}/${listId}`);
-  }
-
-  componentDidMount() {
-    this.projectRef.once("value", data => {
-      const { name } = data.val();
-      this.setState({ projectName: name });
-    });
-    this.listRef.on("value", data => {
-      this.setState(data.val() || {});
-    });
-  }
-
-  componentWillUnmount() {
-    this.listRef.off("value");
+    this.projectRef = db.collection("projects").doc(projectId);
+    this.listRef = db.collection("lists").doc(listId);
   }
 
   _handleUpdateList = async ({ text, notes }) => {
+    const { projectId, listId } = this.props.match.params;
+    this.setState({
+      isEditShown: false
+    });
+
     try {
       await this.listRef.update({
         heading: text,
@@ -58,13 +46,51 @@ class ListDetailPage extends Component {
     } catch (error) {
       console.log("error updating list: " + error);
     }
-    this.setState({
-      isEditShown: false
+    this.props.projectCon.update({
+      lists: {
+        ...this.props.projectCon.state.lists,
+        [projectId]: {
+          ...this.props.projectCon.state.lists[projectId],
+          [listId]: {
+            ...this.props.projectCon.state.lists[projectId][listId],
+            heading: text,
+            description: notes
+          }
+        }
+      }
     });
   };
 
-  _handleDeleteList = () => {
-    this.listRef.set(null).catch(error => console.error(error));
+  _handleDeleteList = async () => {
+    const { listId, projectId } = this.props.match.params;
+    let projectLists = { ...this.props.projectCon.state.lists[projectId] };
+
+    await db
+      .collection("lists")
+      .doc(listId)
+      .delete();
+
+    delete projectLists[listId];
+
+    let todos = { ...this.props.projectCon.state.todos };
+    let deletedTodos = { ...todos[listId] };
+
+    Object.keys(deletedTodos).forEach(
+      async todoId =>
+        await db
+          .collection("todo")
+          .doc(todoId)
+          .delete()
+    );
+
+    delete todos[listId];
+    this.props.projectCon.update({
+      lists: {
+        ...this.props.projectCon.state.lists,
+        [projectId]: projectLists
+      },
+      todos
+    });
     this.props.history.push(`/projects/${this.props.match.params.projectId}`);
   };
 
@@ -81,21 +107,26 @@ class ListDetailPage extends Component {
   };
 
   render() {
-    return (
+    const { projectId, listId } = this.props.match.params;
+    const lists = this.props.projectCon.state.lists;
+
+    return this.props.projectCon.state.isLoading ? (
+      <div>loading</div>
+    ) : (
       <div>
-        <Breadcumb
+        {/* <Breadcumb
           projectId={this.state.projectId}
           projectName={this.state.projectName}
           listId={this.state.id}
           listHeading={this.state.heading}
-        />
+        /> */}
 
         {this.state.isEditShown && (
           <QuickAdd
-            textPlaceholder="프로젝트 이름"
+            textPlaceholder="리스트 이름"
             notesPlaceholder="설명(선택)"
-            text={this.state.heading}
-            notes={this.state.description}
+            text={lists[projectId][listId].heading}
+            notes={lists[projectId][listId].description}
             onSubmit={this._handleUpdateList}
             onCancel={() => this._handleToggleQuickAdd("edit")}
           />
@@ -103,7 +134,7 @@ class ListDetailPage extends Component {
         {!this.state.isEditShown && (
           <React.Fragment>
             <DetailHeadingPane>
-              <Heading>{this.state.heading}</Heading>
+              <Heading>{lists[projectId][listId].heading}</Heading>
               <Dropdown>
                 <Dropdown.Item
                   onClick={() => this._handleToggleQuickAdd("edit")}
@@ -116,15 +147,15 @@ class ListDetailPage extends Component {
               </Dropdown>
             </DetailHeadingPane>
             <DetailDescriptionPane>
-              <ContentEditable html={this.state.description} />
+                <ContentEditable html={lists[projectId][listId].description} disabled={true}/>
             </DetailDescriptionPane>
           </React.Fragment>
         )}
         <List
           projectId={this.props.match.params.projectId}
           listId={this.props.match.params.listId}
-          heading={this.state.heading}
-          description={this.state.description}
+          heading={lists[projectId][listId].heading}
+          description={lists[projectId][listId].description}
         />
       </div>
     );

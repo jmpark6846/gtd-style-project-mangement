@@ -10,6 +10,7 @@ import { db, firebaseAuth } from "./db";
 import ProjectListPage from "./pages/ProjectListPage";
 import SignInPage from "./pages/SignInPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
+import ListDetailPage from "./pages/ListDetailPage";
 
 const Body = styled.section`
   /* position: absolute; */
@@ -58,7 +59,7 @@ class App extends React.Component {
           );
 
           let lists = {};
-          let listIds = []
+          let listIds = [];
           await Promise.all(
             projectIds.map(projectId =>
               db
@@ -67,17 +68,14 @@ class App extends React.Component {
                 .get()
                 .then(listsSnapshot => {
                   if (!listsSnapshot.empty) {
-                    listsSnapshot.forEach(
-                      doc => {
-                        const list = doc.data()
-                        lists[projectId] = {
-                          ...lists[projectId],
-                          [list.id]: list
-                        }
-                        listIds.push(list.id)
-                      }
-                        
-                    );
+                    listsSnapshot.forEach(doc => {
+                      const list = doc.data();
+                      lists[projectId] = {
+                        ...lists[projectId],
+                        [list.id]: list
+                      };
+                      listIds.push(list.id);
+                    });
                   }
                 })
                 .catch(error => {
@@ -88,21 +86,19 @@ class App extends React.Component {
           let todos = {};
           await Promise.all(
             listIds.map(listId =>
-              db.collection("todos")
-                .where("listId","==",listId)
+              db
+                .collection("todos")
+                .where("listId", "==", listId)
                 .get()
                 .then(todosSnapshot => {
                   if (!todosSnapshot.empty) {
-                    todosSnapshot.forEach(
-                      doc => {
-                        const todo = doc.data()
-                        todos[listId] = {
-                          ...todos[listId],
-                          [todo.id]: todo
-                        }
-                      }
-                        
-                    );
+                    todosSnapshot.forEach(doc => {
+                      const todo = doc.data();
+                      todos[listId] = {
+                        ...todos[listId],
+                        [todo.id]: todo
+                      };
+                    });
                   }
                 })
                 .catch(error => {
@@ -129,41 +125,42 @@ class App extends React.Component {
         <Router>
           <Header />
           <Body>
-            <Subscribe to={[AuthContainer, ProjectContainer]}>
-              {(auth, project) => (
-                <React.Fragment>
-                  <Route
-                    exact
-                    path="/"
-                    render={() => <SignInPage authCon={this.props.authCon} />}
+            <React.Fragment>
+              <Route
+                exact
+                path="/"
+                render={() => <SignInPage authCon={this.props.authCon} />}
+              />
+              <Route
+                exact
+                path="/projects"
+                render={() => (
+                  <ProjectListPage
+                    authCon={this.props.authCon}
+                    projectCon={this.props.projectCon}
                   />
-                  <Route
-                    exact
-                    path="/projects"
-                    render={() => (
-                      <ProjectListPage
-                        authCon={this.props.authCon}
-                        projectCon={this.props.projectCon}
-                      />
-                    )}
+                )}
+              />
+              <Route
+                exact
+                path="/projects/:projectId"
+                render={() => (
+                  <ProjectDetailPage
+                    authCon={this.props.authCon}
+                    projectCon={this.props.projectCon}
                   />
-                  <Route
-                    exact
-                    path="/projects/:projectId"
-                    render={() => (
-                      <ProjectDetailPage
-                        authCon={this.props.authCon}
-                        projectCon={this.props.projectCon}
-                      />
-                    )}
+                )}
+              />
+              <Route
+                path="/projects/:projectId/lists/:listId"
+                render={() => (
+                  <ListDetailPage
+                    authCon={this.props.authCon}
+                    projectCon={this.props.projectCon}
                   />
-                  {/* <Route
-                    path="/projects/:projectId/lists/:listId"
-                    component={ListDetailPage}
-                  /> */}
-                </React.Fragment>
-              )}
-            </Subscribe>
+                )}
+              />
+            </React.Fragment>
           </Body>
         </Router>
       </div>

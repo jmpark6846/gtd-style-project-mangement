@@ -217,7 +217,7 @@ class ProjectDetailPage extends Component {
               </Dropdown>
             </DetailHeadingPane>
             <DetailDescriptionPane>
-              <ContentEditable html={project.description} />
+              <ContentEditable html={project.description} disabled={true}/>
             </DetailDescriptionPane>
           </React.Fragment>
         )}

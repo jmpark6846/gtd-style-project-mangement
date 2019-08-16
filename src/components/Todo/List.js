@@ -28,14 +28,10 @@ class List extends Component {
     super(props);
     this.state = {
       isAddShown: false,
-      length:0
+      length: 0
     };
-    this.listRef = db
-      .collection("projects")
-      .doc(props.projectId)
-      .collection("lists")
-      .doc(props.listId);
-    this.todosRef = this.listRef.collection("todos");
+    this.listRef = db.collection("lists").doc(props.listId);
+    this.todosRef = db.collection("todos");
   }
 
   _handleCloseQuickAdd = () => {
@@ -45,7 +41,7 @@ class List extends Component {
   _handleAddTodo = async ({ text, notes, userId, addTodo }) => {
     const todoId = generateId();
     const newTodo = {
-      id:todoId,
+      id: todoId,
       text,
       notes,
       userId,
@@ -60,38 +56,43 @@ class List extends Component {
       console.error("error adding todo: " + error);
     }
 
-    addTodo(this.props.listId, newTodo)
+    addTodo(this.props.listId, newTodo);
     this.setState({
       length: newTodo.order
     });
   };
 
-  _handleChangeTodo = async ({ todoId, text, notes }) => {
+  _handleChangeTodo = async ({ todoId, text, notes, updateTodo }) => {
+    const { listId } = this.props;
     try {
-      await this.todosRef.child(todoId).update({ text, notes });
+      await this.todosRef.doc(todoId).update({ text, notes });
     } catch (error) {
       console.error("error change todo: " + error);
     }
+    updateTodo(todoId, listId, { text, notes });
   };
 
-  _handleCheckTodo = async ({ todoId }) => {
-    let selectedTodo = { ...this.state.todos[todoId] };
-    selectedTodo.done = !selectedTodo.done;
+  _handleCheckTodo = async ({ todo, todoId, updateTodo }) => {
+    const { listId } = this.props;
 
     try {
-      await this.todosRef.child(todoId).update({ done: selectedTodo.done });
+      await this.todosRef.doc(todoId).update({ done: !todo.done });
     } catch (error) {
       console.error("error check todo: " + error);
     }
+    updateTodo(todoId, listId, { done: !todo.done });
   };
 
-  _handleDeleteTodo = async ({ todoId }) => {
+  _handleDeleteTodo = async ({ todoId, deleteTodo }) => {
+    const { listId } = this.props;
     try {
-      await this.todosRef.child(todoId).set(null);
+      await this.todosRef.doc(todoId).delete();
     } catch (error) {
       console.log("error delete todo: " + error);
     }
+    deleteTodo(todoId, listId)
   };
+
   getOnlyNotDone = todos => {
     let todosShown = getSortedByOrderProp(todos || {});
     if (this.props.onlyNotDone) {
@@ -99,6 +100,7 @@ class List extends Component {
     }
     return todosShown;
   };
+
   render() {
     const { listId } = this.props;
     return (
@@ -124,12 +126,20 @@ class List extends Component {
                 notes={todo.notes}
                 order={todo.order}
                 onCheck={() => {
-                  this._handleCheckTodo({ todoId: todo.id });
+                  this._handleCheckTodo({
+                    todo: projectCon.state.todos[listId][todo.id],
+                    todoId: todo.id,
+                    updateTodo: projectCon.updateTodo
+                  });
                 }}
                 onSubmit={data =>
-                  this._handleChangeTodo({ ...data, todoId: todo.id })
+                  this._handleChangeTodo({
+                    ...data,
+                    todoId: todo.id,
+                    updateTodo: projectCon.updateTodo
+                  })
                 }
-                onDelete={() => this._handleDeleteTodo({ todoId: todo.id })}
+                onDelete={() => this._handleDeleteTodo({ todoId: todo.id, deleteTodo: projectCon.deleteTodo })}
               />
             ))}
 
