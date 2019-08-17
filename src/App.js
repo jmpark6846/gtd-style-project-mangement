@@ -55,6 +55,25 @@ class App extends React.Component {
             )
           );
 
+          await Promise.all(
+            projectIds.map(projectId => {
+              projects[projectId].members.map(memberId =>
+                db
+                  .collection("users")
+                  .doc()
+                  .get()
+                  .then(projectDoc => {
+                    if (projectDoc.exists) {
+                      projects[projectDoc.id] = projectDoc.data();
+                    }
+                  })
+                  .catch(error => {
+                    console.error("error gettings project data: " + error);
+                  })
+              );
+            })
+          );
+
           let lists = {};
           let listIds = [];
           await Promise.all(

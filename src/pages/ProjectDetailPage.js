@@ -2,7 +2,14 @@ import { debounce } from "lodash";
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
-import { Button, DetailDescriptionPane, DetailHeadingPane, Heading, Input } from "../components/common";
+import {
+  Button,
+  DetailDescriptionPane,
+  DetailHeadingPane,
+  Heading,
+  InputUnderline,
+  Pane
+} from "../components/common";
 import Dialog from "../components/Dialog/Dialog";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
@@ -20,7 +27,8 @@ class ProjectDetailPage extends Component {
       teammate: "",
       isAddShown: false,
       isEditShown: false,
-      isAddTeammateOpen: false
+      isAddTeammateOpen: false,
+      userResults: []
     };
 
     const { projectId } = this.props.match.params;
@@ -159,17 +167,23 @@ class ProjectDetailPage extends Component {
     console.log(text, notes);
   };
 
-  _handleTeammateNameChange = e => {
-    this.setState({ teammate: e.target.value });
-    this._lookupTeammateName(e.target.value);
-  };
+  // _handleTeammateNameChange = e => {
+  //   this.setState({ teammate: e.target.value });
+  //   this._lookupTeammateName(e.target.value);
+  // };
 
-  _lookupTeammateName = debounce(name => {
-    db.ref("users")
-      .orderByChild("username")
-      .equalTo(name)
-      .once("value", data => console.log(data.exists()));
-  }, 500);
+  // _lookupTeammateName = debounce(name => {
+  //   db.collection("users")
+  //     .where("username", ">=", name)
+  //     .get()
+  //     .then(userSnapshot => {
+  //       const results = [];
+  //       userSnapshot.forEach(userDoc => {
+  //         results.push(userDoc.data());
+  //       });
+  //       this.setState({ userResults: results });
+  //     });
+  // }, 500);
 
   render() {
     const { projectId } = this.props.match.params;
@@ -179,7 +193,7 @@ class ProjectDetailPage extends Component {
       <div>loading</div>
     ) : (
       <div>
-          <Breadcumb projectId={projectId}/>
+        <Breadcumb projectId={projectId} />
         {this.state.isEditShown && (
           <QuickAdd
             textPlaceholder="프로젝트 이름"
@@ -191,7 +205,7 @@ class ProjectDetailPage extends Component {
           />
         )}
         {!this.state.isEditShown && (
-          <React.Fragment>
+          <Pane>
             <DetailHeadingPane>
               <Heading>{project.name}</Heading>
               <Dropdown>
@@ -200,11 +214,11 @@ class ProjectDetailPage extends Component {
                 >
                   정보 수정
                 </Dropdown.Item>
-                <Dropdown.Item
+                {/* <Dropdown.Item
                   onClick={() => this.setState({ isAddTeammateOpen: true })}
                 >
                   팀원 추가
-                </Dropdown.Item>
+                </Dropdown.Item> */}
                 <Dropdown.Item onClick={this._handleDeleteProject}>
                   프로젝트 삭제
                 </Dropdown.Item>
@@ -213,7 +227,7 @@ class ProjectDetailPage extends Component {
             <DetailDescriptionPane>
               <ContentEditable html={project.description} disabled={true} />
             </DetailDescriptionPane>
-          </React.Fragment>
+          </Pane>
         )}
         {getSortedByOrderProp(projectLists || {}).map(list => (
           <List
@@ -240,17 +254,23 @@ class ProjectDetailPage extends Component {
             새 리스트 추가
           </Button>
         )}
-        {this.state.isAddTeammateOpen && (
+        {/* {this.state.isAddTeammateOpen && (
           <Dialog onClose={() => this.setState({ isAddTeammateOpen: false })}>
             <div>
               <Heading>팀원 초대하기</Heading>
-              <Input
+              <InputUnderline
+                placeholder="팀원 이름"
                 value={this.state.teammate}
                 onChange={this._handleTeammateNameChange}
               />
+              {this.state.userResults.map(user => (
+                <Pane padding="20px 0px" key={user.id}>
+                  {user.username}
+                </Pane>
+              ))}
             </div>
           </Dialog>
-        )}
+        )} */}
       </div>
     );
   }

@@ -29,10 +29,12 @@ export const IconButton = styled(Button)`
 
 export const Pane = styled.div.attrs(props => ({
   width: props.width,
-  position: props.position
+  position: props.position,
+  padding: props.padding
 }))`
   width: ${props => props.width};
   position: ${props => props.position};
+  padding: ${props => props.padding};
 `;
 
 export const Box = styled(Pane)`

@@ -8,9 +8,10 @@ import {
   InputUnderline,
   SubHeading
 } from "../components/common";
-import SlideContainer, { Slide } from "../components/Slide/SlideContainer";
-import { db, firebaseAuth } from "../db";
+import Dialog from "../components/Dialog/Dialog";
+import { db } from "../db";
 import { generateId } from "../utils";
+import ContentEditable from "react-contenteditable";
 
 const ProjectBox = styled(Box)`
   padding: 0.5em 1em;
@@ -21,13 +22,14 @@ const ProjectBox = styled(Box)`
 class ProjectListPage extends React.Component {
   state = {
     name: "",
-    teammate: "",
-    isSlideShown: false,
+    isDialogOpen: false,
     currentSlide: 0,
-    slideCount: 2
+    slideCount: 2,
+    dialogName:"",
+    dialogDescription:""
   };
   projectsRef = db.collection("projects");
-  
+
   _handleAddProject = async () => {
     try {
       const projectId = generateId();
@@ -35,18 +37,19 @@ class ProjectListPage extends React.Component {
       const newProject = {
         id: projectId,
         userId,
-        name: this.state.name,
+        name: this.state.dialogName,
         createdAt: Date.now(),
-        description: "",
+        description: this.state.dialogDescription || "",
+        members: [userId]
       };
 
       await this.projectsRef.doc(projectId).set(newProject);
       this.props.projectCon.update({
-        projects: { 
+        projects: {
           ...this.props.projectCon.state.projects,
           [projectId]: newProject
         }
-      })
+      });
 
       const authProjectList = {
         ...this.props.authCon.state.projects,
@@ -64,10 +67,9 @@ class ProjectListPage extends React.Component {
       });
 
       this.setState({
-        isSlideShown: false,
-        currentSlide: 0,
-        name: "",
-        teammate: "",
+        isDialogOpen: false,
+        dialogName: "",
+        dialogDescription: ""
       });
     } catch (error) {
       console.error("error adding project: " + error);
@@ -80,6 +82,10 @@ class ProjectListPage extends React.Component {
     );
   };
 
+  handleDialogSubmit = () => {
+    this.setState({ isDialogOpen: true })
+    
+  }
   render() {
     return (
       <div>
@@ -89,10 +95,33 @@ class ProjectListPage extends React.Component {
             <ProjectBox>{project.name}</ProjectBox>
           </Link>
         ))}
-        <Button onClick={() => this.setState({ isSlideShown: true })}>
+        <Button onClick={() => this.setState({ isDialogOpen: true })}>
           프로젝트 만들기
         </Button>
 
+        {this.state.isDialogOpen && (
+          <Dialog onClose={() => this.setState({ isDialogOpen: false })}>
+            <Heading>프로젝트 추가하기</Heading>
+            {/* <SubHeading>프로젝트 이름부터 지어볼까요?</SubHeading> */}
+            <InputUnderline
+              placeholder="프로젝트 이름"
+              value={this.state.dialogName}
+              onChange={(e) => this.setState({ dialogName: e.target.value })}
+              spellCheck={false}
+            />
+            <ContentEditable
+              placeholder="설명(선택)"
+              html={this.state.dialogDescription}
+              onChange={(e)=>this.setState({dialogDescription: e.target.value})}
+              spellCheck={false}
+            />
+            <Button onClick={this._handleAddProject}>
+              프로젝트 만들기
+            </Button>
+          </Dialog>
+        )}
+
+        {/* 
         <SlideContainer
           current={this.state.currentSlide}
           width="500px"
@@ -127,7 +156,7 @@ class ProjectListPage extends React.Component {
               value={this.state.teammate}
               placeholder="팀원 Email(선택)"
               onChange={e => this.setState({ teammate: e.target.value })}
-            />
+            />  
           </Slide>
           <Slide submit={true}>
             <Heading>
@@ -137,7 +166,7 @@ class ProjectListPage extends React.Component {
               </span>
             </Heading>
           </Slide>
-        </SlideContainer>
+        </SlideContainer> */}
       </div>
     );
   }
