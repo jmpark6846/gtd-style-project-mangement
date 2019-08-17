@@ -4,10 +4,9 @@ import { FiMoreHorizontal } from "react-icons/fi";
 import { IconButton, Box, Pane } from "../common";
 import styled from "styled-components";
 
-
 const DropdownMenuPane = styled(Box).attrs(props => ({ right: props.right }))`
-  margin-top:3px;
-  border-radius:0.5rem;
+  margin-top: 3px;
+  border-radius: 0.5rem;
   background-color: white;
   position: absolute;
   width: 150px;
@@ -18,20 +17,20 @@ const DropdownMenuPane = styled(Box).attrs(props => ({ right: props.right }))`
 `;
 
 export const DropdownItem = styled.div`
-  cursor:pointer;
+  cursor: pointer;
   padding: 0.8em 1em;
-  background-color:white;
+  background-color: white;
 
-  :first-child{
-    border-top-left-radius:inherit;
-    border-top-right-radius:inherit;
+  :first-child {
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
   }
-  :last-child{
-    border-bottom-left-radius:inherit;
-    border-bottom-right-radius:inherit;
+  :last-child {
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
   }
-  :hover{
-    background-color:#fbfbfb;
+  :hover {
+    background-color: #f7f7f7;
   }
 `;
 
@@ -39,8 +38,8 @@ class Dropdown extends React.Component {
   static Item = DropdownItem;
   static propTypes = {
     alignRight: PropTypes.bool,
-    select:  PropTypes.oneOfType([PropTypes.object,PropTypes.string])
-  }
+    select: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+  };
 
   constructor(props) {
     super(props);
@@ -74,12 +73,17 @@ class Dropdown extends React.Component {
         {select != null ? (
           <div onClick={this.openMenu}>{select}</div>
         ) : (
-          <IconButton onClick={this.openMenu}>
-            <FiMoreHorizontal />
-          </IconButton>
+          <Pane marginLeft="5px">
+            <IconButton minimal onClick={this.openMenu}>
+              <FiMoreHorizontal />
+            </IconButton>
+          </Pane>
         )}
         {this.state.open && (
-          <DropdownMenuPane right={this.props.alignRight && 0} ref={this.menuRef}>
+          <DropdownMenuPane
+            right={this.props.alignRight && 0}
+            ref={this.menuRef}
+          >
             {this.props.children}
           </DropdownMenuPane>
         )}
@@ -89,6 +93,3 @@ class Dropdown extends React.Component {
 }
 
 export default Dropdown;
-
-
-

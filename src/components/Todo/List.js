@@ -8,12 +8,13 @@ import AuthContainer from "../../containers/AuthContainer";
 import ProjectContainer from "../../containers/ProjectContainer";
 import { db } from "../../db";
 import { generateId, getSortedByOrderProp } from "../../utils";
-import { Button, SubHeading } from "../common";
+import { Button, SubHeading, Pane } from "../common";
 import QuickAdd from "../QuickAdd/QuickAdd";
 import Todo from "./Todo";
 
 const ListPane = styled.div`
-  margin-bottom: 20px;
+  margin-top: 30px;
+  
 `;
 
 class List extends Component {
@@ -90,7 +91,7 @@ class List extends Component {
     } catch (error) {
       console.log("error delete todo: " + error);
     }
-    deleteTodo(todoId, listId)
+    deleteTodo(todoId, listId);
   };
 
   getOnlyNotDone = todos => {
@@ -108,40 +109,56 @@ class List extends Component {
         {(authCon, projectCon) => (
           <ListPane>
             {this.props.hideHeading && (
-              <div>
-                <Link to={`${this.props.match.url}/lists/${this.props.listId}`}>
-                  <SubHeading>{this.props.heading}</SubHeading>
-                </Link>
-                <ContentEditable html={this.props.description} />
-              </div>
+              <Pane marginBottom="10px">
+                <Pane marginBottom="8px">
+                  <Link
+                    to={`${this.props.match.url}/lists/${this.props.listId}`}
+                  >
+                    <SubHeading>{this.props.heading}</SubHeading>
+                  </Link>
+                </Pane>
+                <ContentEditable
+                  style={{ color: "gray" }}
+                  html={this.props.description}
+                  disabled={true}
+                />
+              </Pane>
             )}
 
-            {this.getOnlyNotDone(projectCon.state.todos[listId]).map(todo => (
-              <Todo
-                key={todo.id}
-                id={todo.id}
-                user={todo.user}
-                text={todo.text}
-                done={todo.done}
-                notes={todo.notes}
-                order={todo.order}
-                onCheck={() => {
-                  this._handleCheckTodo({
-                    todo: projectCon.state.todos[listId][todo.id],
-                    todoId: todo.id,
-                    updateTodo: projectCon.updateTodo
-                  });
-                }}
-                onSubmit={data =>
-                  this._handleChangeTodo({
-                    ...data,
-                    todoId: todo.id,
-                    updateTodo: projectCon.updateTodo
-                  })
-                }
-                onDelete={() => this._handleDeleteTodo({ todoId: todo.id, deleteTodo: projectCon.deleteTodo })}
-              />
-            ))}
+            <Pane marginBottom="15px">
+              {this.getOnlyNotDone(projectCon.state.todos[listId]).map(todo => (
+                <Todo
+                  key={todo.id}
+                  id={todo.id}
+                  user={todo.user}
+                  text={todo.text}
+                  done={todo.done}
+                  notes={todo.notes}
+                  order={todo.order}
+                  onCheck={() => {
+                    this._handleCheckTodo({
+                      todo: projectCon.state.todos[listId][todo.id],
+                      todoId: todo.id,
+                      updateTodo: projectCon.updateTodo
+                    });
+                  }}
+                  onSubmit={data =>
+                    this._handleChangeTodo({
+                      ...data,
+                      todoId: todo.id,
+                      updateTodo: projectCon.updateTodo
+                    })
+                  }
+                  onDelete={() =>
+                    this._handleDeleteTodo({
+                      todoId: todo.id,
+                      deleteTodo: projectCon.deleteTodo
+                    })
+                  }
+                />
+              ))}
+            </Pane>
+
 
             <div>
               {this.state.isAddShown && (

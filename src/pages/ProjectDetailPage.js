@@ -4,10 +4,9 @@ import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
 import {
   Button,
-  DetailDescriptionPane,
-  DetailHeadingPane,
+  DescriptionPane,
+  HeadingPane,
   Heading,
-  InputUnderline,
   Pane
 } from "../components/common";
 import Dialog from "../components/Dialog/Dialog";
@@ -193,9 +192,10 @@ class ProjectDetailPage extends Component {
       <div>loading</div>
     ) : (
       <div>
-        <Breadcumb projectId={projectId} />
+        {/* <Breadcumb projectId={projectId} /> */}
         {this.state.isEditShown && (
-          <QuickAdd
+            <QuickAdd
+              textClassName="headingText"
             textPlaceholder="프로젝트 이름"
             notesPlaceholder="설명(선택)"
             text={project.name}
@@ -205,8 +205,8 @@ class ProjectDetailPage extends Component {
           />
         )}
         {!this.state.isEditShown && (
-          <Pane>
-            <DetailHeadingPane>
+          <Pane marginBottom="40px">
+            <HeadingPane>
               <Heading>{project.name}</Heading>
               <Dropdown>
                 <Dropdown.Item
@@ -214,19 +214,16 @@ class ProjectDetailPage extends Component {
                 >
                   정보 수정
                 </Dropdown.Item>
-                {/* <Dropdown.Item
-                  onClick={() => this.setState({ isAddTeammateOpen: true })}
-                >
-                  팀원 추가
-                </Dropdown.Item> */}
                 <Dropdown.Item onClick={this._handleDeleteProject}>
                   프로젝트 삭제
                 </Dropdown.Item>
               </Dropdown>
-            </DetailHeadingPane>
-            <DetailDescriptionPane>
-              <ContentEditable html={project.description} disabled={true} />
-            </DetailDescriptionPane>
+            </HeadingPane>
+            <ContentEditable
+              style={{ color: "gray" }}
+              html={project.description}
+              disabled={true}
+            />
           </Pane>
         )}
         {getSortedByOrderProp(projectLists || {}).map(list => (
@@ -242,7 +239,8 @@ class ProjectDetailPage extends Component {
           />
         ))}
         {this.state.isAddShown && (
-          <QuickAdd
+            <QuickAdd
+              textClassName="headingText"
             textPlaceholder="새 리스트"
             notesPlaceholder="설명(선택)"
             onSubmit={this._handleAddList}
@@ -250,9 +248,11 @@ class ProjectDetailPage extends Component {
           />
         )}
         {!this.state.isAddShown && (
-          <Button onClick={() => this._handleToggleQuickAdd("add")}>
-            새 리스트 추가
-          </Button>
+          <Pane marginTop="30px">
+            <Button onClick={() => this._handleToggleQuickAdd("add")}>
+              새 리스트 추가
+            </Button>
+          </Pane>
         )}
         {/* {this.state.isAddTeammateOpen && (
           <Dialog onClose={() => this.setState({ isAddTeammateOpen: false })}>

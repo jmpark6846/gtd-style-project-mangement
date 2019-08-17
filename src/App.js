@@ -11,8 +11,13 @@ import SignInPage from "./pages/SignInPage";
 
 const Body = styled.section`
   /* position: absolute; */
-  margin-top: 60px;
+  width: 900px;
+  margin: 75px auto 0px auto;
   padding: 0px 30px;
+  background-color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px 0 rgba(0,64,128,0.05);
 `;
 
 class App extends React.Component {
@@ -141,7 +146,6 @@ class App extends React.Component {
         <Router>
           <Header />
           <Body>
-            <React.Fragment>
               <Route
                 exact
                 path="/"
@@ -176,7 +180,7 @@ class App extends React.Component {
                   />
                 )}
               />
-            </React.Fragment>
+            
           </Body>
         </Router>
       </div>

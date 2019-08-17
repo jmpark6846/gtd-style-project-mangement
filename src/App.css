@@ -1,7 +1,7 @@
 .App {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  padding-bottom: 50px;
 }
 
 [contenteditable=true]:empty:before {
@@ -11,3 +11,18 @@
   cursor: text;
 }
 
+
+a{
+  color: rgb(83, 83, 83);
+  text-decoration: none;
+}
+
+a:hover{
+  color: inherit;
+}
+
+.headingText{
+  font-weight: 700;
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}

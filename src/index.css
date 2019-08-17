@@ -364,11 +364,11 @@ textarea {
     padding: 0.2em 0;
 }
 
-
+/* 
 html, body, #root{
   height: 100%;
-}
-
+} */
+  
 body {
   font-size: 16px;
   margin: 0;
@@ -377,6 +377,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fbfc;
 }
 
 

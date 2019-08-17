@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
-import { Box, Input, Button } from "../common";
+import { Box, Input, Button, Pane } from "../common";
 import styled from "styled-components";
 
 const ControlPane = styled.div`
@@ -11,6 +11,7 @@ const ControlPane = styled.div`
 `;
 
 let compositionend = true;
+
 export default class QuickAdd extends Component {
   static propTypes = {
     textPlaceholder: PropTypes.string,
@@ -49,8 +50,9 @@ export default class QuickAdd extends Component {
 
   render() {
     return (
-      <Box>
+      <Box marginBottom="10px">
         <Input
+          className={this.props.textClassName}
           value={this.state.text}
           placeholder={this.props.textPlaceholder}
           onCompositionStart={this.handleComposition}
@@ -60,8 +62,11 @@ export default class QuickAdd extends Component {
           onChange={evt => {
             this.setState({ text: evt.target.value });
           }}
-        />
+          marginBottom="5px"
+          />
         <ContentEditable
+          style={{ color: "gray" }}
+          className={this.props.notesClassName}
           html={this.state.notes}
           placeholder={this.props.notesPlaceholder}
           onChange={evt => {

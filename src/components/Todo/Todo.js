@@ -9,7 +9,7 @@ const TodoPane = styled.div`
   align-items: center;
   border: 1px solid white;
   border-radius: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 7px;
   :hover {
     color: #000;
   }

@@ -5,6 +5,7 @@ import { Subscribe } from "unstated";
 import AuthContainer from "../containers/AuthContainer";
 import { firebaseAuth } from "../db";
 import Dropdown from "./Dropdown/Dropdown";
+import Breadcumb from "./Breadcumb/Breadcumb";
 
 const Nav = styled.nav`
   position: fixed;
@@ -19,6 +20,7 @@ const Nav = styled.nav`
   background-color: #ffffff;
   height: 50px;
   align-items: center;
+  z-index:999;
 `;
 
 const Logo = styled.span`
@@ -47,6 +49,10 @@ class Header extends React.Component {
         {auth => (
           <Nav>
             <Logo><Link to={`/projects`} >projects</Link></Logo>
+            {/* <Breadcumb
+              projectId={projectId}
+              listId={listId}
+            /> */}
             <Dropdown
               alignRight={true}
               select={auth.state.username}

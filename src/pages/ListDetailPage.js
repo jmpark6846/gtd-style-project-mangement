@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import ContentEditable from "react-contenteditable";
 import { withRouter } from "react-router-dom";
-import { DetailDescriptionPane, DetailHeadingPane, Heading } from "../components/common";
+import Breadcumb from "../components/Breadcumb/Breadcumb";
+import { Heading, HeadingPane, DescriptionPane, Pane } from "../components/common";
 import Dropdown from "../components/Dropdown/Dropdown";
 import QuickAdd from "../components/QuickAdd/QuickAdd";
 import List from "../components/Todo/List";
 import { db } from "../db";
-import Breadcumb from "../components/Breadcumb/Breadcumb";
 
 class ListDetailPage extends Component {
   constructor(props) {
@@ -110,13 +110,14 @@ class ListDetailPage extends Component {
       <div>loading</div>
     ) : (
       <div>
-        <Breadcumb
+        {/* <Breadcumb
           projectId={projectId}
           listId={listId}
-        />
+        /> */}
 
         {this.state.isEditShown && (
-          <QuickAdd
+            <QuickAdd
+            textClassName="headingText"
             textPlaceholder="리스트 이름"
             notesPlaceholder="설명(선택)"
             text={lists[projectId][listId].heading}
@@ -126,8 +127,8 @@ class ListDetailPage extends Component {
           />
         )}
         {!this.state.isEditShown && (
-          <React.Fragment>
-            <DetailHeadingPane>
+          <Pane marginBottom="15px">
+            <HeadingPane>
               <Heading>{lists[projectId][listId].heading}</Heading>
               <Dropdown>
                 <Dropdown.Item
@@ -139,11 +140,11 @@ class ListDetailPage extends Component {
                   리스트 삭제
                 </Dropdown.Item>
               </Dropdown>
-            </DetailHeadingPane>
-            <DetailDescriptionPane>
+            </HeadingPane>
+            <DescriptionPane>
                 <ContentEditable html={lists[projectId][listId].description} disabled={true}/>
-            </DetailDescriptionPane>
-          </React.Fragment>
+            </DescriptionPane>
+          </Pane>
         )}
         <List
           projectId={this.props.match.params.projectId}

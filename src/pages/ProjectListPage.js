@@ -6,7 +6,8 @@ import {
   Button,
   Heading,
   InputUnderline,
-  SubHeading
+  SubHeading,
+  Pane
 } from "../components/common";
 import Dialog from "../components/Dialog/Dialog";
 import { db } from "../db";
@@ -25,8 +26,8 @@ class ProjectListPage extends React.Component {
     isDialogOpen: false,
     currentSlide: 0,
     slideCount: 2,
-    dialogName:"",
-    dialogDescription:""
+    dialogName: "",
+    dialogDescription: ""
   };
   projectsRef = db.collection("projects");
 
@@ -83,22 +84,25 @@ class ProjectListPage extends React.Component {
   };
 
   handleDialogSubmit = () => {
-    this.setState({ isDialogOpen: true })
-    
-  }
+    this.setState({ isDialogOpen: true });
+  };
   render() {
     return (
       <div>
-        <Heading>Project</Heading>
+        <Pane marginBottom="15px">
+          <Heading>Project</Heading>
+        </Pane>
+
         {this._sortByCreatedAt().map(project => (
           <Link key={project.id} to={`${this.props.match.path}/${project.id}`}>
             <ProjectBox>{project.name}</ProjectBox>
           </Link>
         ))}
-        <Button onClick={() => this.setState({ isDialogOpen: true })}>
-          프로젝트 만들기
-        </Button>
-
+        <Pane marginTop="30px">
+          <Button onClick={() => this.setState({ isDialogOpen: true })}>
+            프로젝트 만들기
+          </Button>
+        </Pane>
         {this.state.isDialogOpen && (
           <Dialog onClose={() => this.setState({ isDialogOpen: false })}>
             <Heading>프로젝트 추가하기</Heading>
@@ -106,18 +110,18 @@ class ProjectListPage extends React.Component {
             <InputUnderline
               placeholder="프로젝트 이름"
               value={this.state.dialogName}
-              onChange={(e) => this.setState({ dialogName: e.target.value })}
+              onChange={e => this.setState({ dialogName: e.target.value })}
               spellCheck={false}
             />
             <ContentEditable
               placeholder="설명(선택)"
               html={this.state.dialogDescription}
-              onChange={(e)=>this.setState({dialogDescription: e.target.value})}
+              onChange={e =>
+                this.setState({ dialogDescription: e.target.value })
+              }
               spellCheck={false}
             />
-            <Button onClick={this._handleAddProject}>
-              프로젝트 만들기
-            </Button>
+            <Button onClick={this._handleAddProject}>프로젝트 만들기</Button>
           </Dialog>
         )}
 
